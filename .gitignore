@@ -164,3 +164,8 @@ cython_debug/
 # Custom additions
 to_ignore/
 .DS_Store
+main/__pycache__/
+main/analysis/__pycache__/
+main/.DS_Store
+main/analysis/.DS_Store
+main/images/.DS_Store

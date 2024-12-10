@@ -168,4 +168,5 @@ main/__pycache__/
 main/analysis/__pycache__/
 main/.DS_Store
 main/analysis/.DS_Store
+main/analysis/output_config/.DS_Store
 main/images/.DS_Store

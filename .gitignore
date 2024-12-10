@@ -161,5 +161,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-/to_ignore
+# Custom additions
+.to_ignore/
 .DS_Store

@@ -162,5 +162,5 @@ cython_debug/
 #.idea/
 
 # Custom additions
-.to_ignore/
+to_ignore/
 .DS_Store

@@ -5,7 +5,10 @@ Within this folder there are 3 things
 - An Auto ANT application for PC (AutoANT-PC)
 - The code itself for running Auto ANT locally, which requires installation of Python 3.7.3 and the installation of python packages.
 
-If possible, download, unzip and use one of the applications as it requires no installation process.
+To use the application:
+1. Download the correct one for your operating system (AutoANT-Mac or AutoANT-PC)
+2. Unzip the file 
+3. Right click the file and select open (if you double click it directly, a warning may prevent it from opening)
 
 ## Easiest Install: Via Conda 
 1. Install Conda

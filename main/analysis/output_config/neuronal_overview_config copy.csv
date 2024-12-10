@@ -1,0 +1,24 @@
+clean_name,column,to_include
+Cell name,Cell name,1
+Resting membrane potential (mV),Resting membrane potential (mV),1
+Sag amplitude (mV),Sag amplitude (mV),1
+Sag ratio,Sag ratio,1
+Membrane Input Restance (GOhm),Membrane Input Restance (GOhm),1
+Membrane time constant (ms),Membrane time constant (ms),1
+Membrane capacitance (pF),Membrane capacitance (pF),1
+Rheobase (pA),Rheobase (pA),1
+AP1 Latency (ms),AP1 Latency (ms),1
+AP1 amplitude (mV),AP1 amplitude (mV),1
+AP1 peak (mV),AP1 peak (mV),1
+AP1 width (ms),AP1 width (ms),1
+AP1 half width (ms),AP1 half width (ms),1
+AP1 threshold (mV),AP1 threshold (mV),1
+AP1 peak upstroke (V/s),AP1 peak upstroke (V/s),1
+AP1 peak downstroke (V/s),AP1 peak downstroke (V/s),1
+AP1 rise rate,AP1 rise rate,1
+AP1 fall rate,AP1 fall rate,1
+AP1 rise time (ms),AP1 rise time (ms),1
+AP1 fall time (ms),AP1 fall time (ms),1
+AHP1 abs depth,AHP1 abs depth,1
+AHP1 time from peak (ms),AHP1 time from peak (ms),1
+AHP1 depth from threshold (mV),AHP1 depth from threshold (mV),1

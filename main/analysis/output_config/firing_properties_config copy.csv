@@ -1,0 +1,83 @@
+clean_name,column,to_include
+Sweep,Sweep,1
+First ISI (ms),First ISI (ms),1
+Mean ISI (ms),Mean ISI (ms),1
+ISI CV,ISI CV,1
+Current step (pA),Current step (pA),1
+Membrane voltage (mV),Membrane voltage (mV),1
+N of spikes,N of spikes,1
+Latency (ms),Latency (ms),1
+Frequency (Hz),Frequency (Hz),1
+AP amplitude (mV),Average amplitude (mV),1
+AP peak (mV),Average peak (mV),1
+AP width (ms),Average width (ms),1
+AP half width (ms),Average half width (ms),1
+AP threshold (mV),Average threshold (mV),1
+AP peak upstroke (V/s),Average peak upstroke (V/s),1
+AP peak downstroke (V/s),Average peak downstroke (V/s),1
+AP rise rate,Average rise rate,1
+AP fall rate,Average fall rate,1
+AP rise time (ms),Average rise time (ms),1
+AP fall time (ms),Average fall time (ms),1
+AHP abs depth,Average AHP abs depth,1
+AHP time from peak (ms),Average AHP time from peak (ms),1
+AHP depth from threshold (mV),Average AHP depth from threshold (mV),1
+AP amplitude (mV),AP1 amplitude (mV),1
+AP peak (mV),AP1 peak (mV),1
+AP width (ms),AP1 width (ms),1
+AP half width (ms),AP1 half width (ms),1
+AP threshold (mV),AP1 threshold (mV),1
+AP peak upstroke (V/s),AP1 peak upstroke (V/s),1
+AP peak downstroke (V/s),AP1 peak downstroke (V/s),1
+AP rise rate,AP1 rise rate,1
+AP fall rate,AP1 fall rate,1
+AP rise time (ms),AP1 rise time (ms),1
+AP fall time (ms),AP1 fall time (ms),1
+AHP abs depth,AHP1 abs depth,1
+AHP time from peak (ms),AHP1 time from peak (ms),1
+AHP depth from threshold (mV),AHP1 depth from threshold (mV),1
+AP amplitude (mV),AP2 amplitude (mV),1
+AP peak (mV),AP2 peak (mV),1
+AP width (ms),AP2 width (ms),1
+AP half width (ms),AP2 half width (ms),1
+AP threshold (mV),AP2 threshold (mV),1
+AP peak upstroke (V/s),AP2 peak upstroke (V/s),1
+AP peak downstroke (V/s),AP2 peak downstroke (V/s),1
+AP rise rate,AP2 rise rate,1
+AP fall rate,AP2 fall rate,1
+AP rise time (ms),AP2 rise time (ms),1
+AP fall time (ms),AP2 fall time (ms),1
+AHP abs depth,AHP2 abs depth,1
+AHP time from peak (ms),AHP2 time from peak (ms),1
+AHP depth from threshold (mV),AHP2 depth from threshold (mV),1
+AP amplitude (mV),APsL amplitude (mV),1
+AP peak (mV),APsL peak (mV),1
+AP width (ms),APsL width (ms),1
+AP half width (ms),APsL half width (ms),1
+AP threshold (mV),APsL threshold (mV),1
+AP peak upstroke (V/s),APsL peak upstroke (V/s),1
+AP peak downstroke (V/s),APsL peak downstroke (V/s),1
+AP rise rate,APsL rise rate,1
+AP fall rate,APsL fall rate,1
+AP rise time (ms),APsL rise time (ms),1
+AP fall time (ms),APsL fall time (ms),1
+AHP abs depth,AHPsL abs depth,1
+AHP time from peak (ms),AHPsL time from peak (ms),1
+AHP depth from threshold (mV),AHPsL depth from threshold (mV),1
+AP amplitude (mV),APL amplitude (mV),1
+AP peak (mV),APL peak (mV),1
+AP width (ms),APL width (ms),1
+AP half width (ms),APL half width (ms),1
+AP threshold (mV),APL threshold (mV),1
+AP peak upstroke (V/s),APL peak upstroke (V/s),1
+AP peak downstroke (V/s),APL peak downstroke (V/s),1
+AP rise rate,APL rise rate,1
+AP fall rate,APL fall rate,1
+AP rise time (ms),APL rise time (ms),1
+AP fall time (ms),APL fall time (ms),1
+AHP abs depth,AHPL abs depth,1
+AHP time from peak (ms),AHPL time from peak (ms),1
+AHP depth from threshold (mV),AHPL depth from threshold (mV),1
+Amplitude AP1/APL,Amplitude AP1/APL,1
+Peak AP1/APL,Peak AP1/APL,1
+Half width AP1/APL,Half width AP1/APL,1

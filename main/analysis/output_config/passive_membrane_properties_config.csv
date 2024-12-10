@@ -1,0 +1,12 @@
+clean_name,column,to_include
+Sweep,Sweep,1
+Current (pA),Current (pA),1
+Voltage base (mV),Voltage base (mV),1
+Membrane voltage (mV),Membrane voltage (mV),1
+Time constant (ms),Time constant (ms),1
+Input resistance (Gohm),Input resistance (Gohm),1
+Capacitance (pF),Capacitance (pF),1
+Decay time constant (ms),Decay time constant (ms),1
+Sag amplitude (mV),Sag amplitude (mV),1
+Sag ratio,Sag ratio,1
+Sag time constant (ms),Sag time constant (ms),1

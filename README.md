@@ -1,5 +1,12 @@
 #  Auto Analysis and Tables (ANT) Version 1
 
+Within this folder there are 3 things
+- An Auto ANT application for Mac (AutoANT-Mac)
+- An Auto ANT application for PC (AutoANT-PC)
+- The code itself for running Auto ANT locally, which requires installation of Python 3.7.3 and the installation of python packages.
+
+If possible, download and use one of the applications as it requires no installation process.
+
 ## Easiest Install: Via Conda 
 1. Install Conda
     - Google Conda

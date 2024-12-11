@@ -509,7 +509,7 @@ menubar = Menu(root)
 
 more_info_menu = Menu(menubar, tearoff=0)
 # more_info_menu.add_command(label="Link to paper", command= lambda: browser_open_url('https://www.aftonbladet.se/'))
-more_info_menu.add_command(label="Link to GitHub", command= lambda: browser_open_url('https://www.github.com/'))
+more_info_menu.add_command(label="Link to repo", command= lambda: browser_open_url('https://github.com/Auto-ANT/Auto-ANT'))
 
 menubar.add_cascade(label="More Info...", menu=more_info_menu)
 root.config(menu=menubar)

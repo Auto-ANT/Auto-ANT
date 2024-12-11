@@ -4,7 +4,7 @@ Within this folder there are 3 things
 - An Auto ANT application for Mac (AutoANT-Mac)
 - An Auto ANT application for PC (AutoANT-PC)
 - The code itself for running Auto ANT locally, which requires installation of Python 3.7.3 and the installation of python packages.
-
+ 
 To use the application:
 1. Download the correct one for your operating system (AutoANT-Mac or AutoANT-PC)
 2. Unzip the file 

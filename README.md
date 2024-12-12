@@ -1,14 +1,16 @@
 #  Auto Analysis and Tables (ANT) Version 1
 
-Within this folder there are 3 things
-- An Auto ANT application for Mac (AutoANT-Mac)
-- An Auto ANT application for PC (AutoANT-PC)
-- The code itself for running Auto ANT locally, which requires installation of Python 3.7.3 and the installation of python packages.
- 
-To use the application:
-1. Download the correct one for your operating system (AutoANT-Mac or AutoANT-PC)
-2. Unzip the file 
-3. Right click the file and select open (if you double click it directly, a warning may prevent it from opening)
+Running Auto ANT as an application
+1. Open the folder "Ready to use applications"
+2. Select the relevant zip file depending on your operating system (mac or PC) and click it
+3. In the upper right corner there aree 3 dots ("..."). Click this, and download the .zip file
+4. Unzip the file 
+5. Right click the file and select open (if you double click it directly, a warning may prevent it from opening)
+6. The application might take a minute to open. Once opened it's ready to be used.
+
+# Running the application via the code
+To use the code for the application, the user will need to download the repo (either via cloning or downloading the zip).
+To run the code, the user will need to use python 3.7.3.
 
 ## Easiest Install: Via Conda 
 1. Install Conda

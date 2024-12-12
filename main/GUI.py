@@ -104,7 +104,7 @@ class data_to_use:
         # Set input folder, output folder, file name
         # ---------- Files Processed Heading ------------------------------------------
         files_processed_titles.config(text = "File status:")
-        # ---------- Files Processed List------------------------------------------
+        # ---------- GUI status table / Files Processed List------------------------------------------
         frame = ttk.Frame(root)
         frame.grid(row=3, column=4, padx=(0, 20), sticky="nwe", rowspan=17)
 
@@ -141,9 +141,7 @@ class data_to_use:
             # If its been stopped - Break the loop
             if exit_event.is_set():
                 break
-            
-            #! Need to store all returns here, and if ANY of them is False, then stop with errors
-            #! Not fixed yet?
+
             outcome = run_analysis(self,file,gui_status_table, root)
             list_outcomes.append(outcome)
 

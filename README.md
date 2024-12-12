@@ -1,4 +1,4 @@
-#  Auto Analysis and Tables (ANT) Version 1
+#  Auto Analysis and Tables (Auto ANT)
 
 # Running Auto ANT as an application
 Running Auto ANT as an application does not require any programming expertise. After downloading the application, it can be run without any further installations.

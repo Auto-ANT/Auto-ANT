@@ -109,16 +109,20 @@ class data_to_use:
         frame.grid(row=3, column=4, padx=(0, 20), sticky="nwe", rowspan=17)
 
         # Create the Treeview widget inside the frame
-        results_output_text = ttk.Treeview(frame, column=("File status"), show="tree", height = 16)
-        results_output_text.grid(row=0, column=0, sticky="nswe")
-        results_output_text.column("#0", width=500, stretch=True)
+        gui_status_table = ttk.Treeview(frame, column=("File status"), show="tree", height = 16)
+        gui_status_table.grid(row=0, column=0, sticky="nswe")
+        gui_status_table.column("#0", width=500, stretch=True)
+
+        # Add vertical scrollbar
+        v_scrollbar = ttk.Scrollbar(frame, orient="vertical", command=gui_status_table.yview)
+        v_scrollbar.grid(row=0, column=1, sticky="ns")
 
         # Create a horizontal scrollbar inside the frame and attach it to the Treeview
-        h_scroll = ttk.Scrollbar(frame, orient="horizontal", command=results_output_text.xview)
+        h_scroll = ttk.Scrollbar(frame, orient="horizontal", command=gui_status_table.xview)
         h_scroll.grid(row=1, column=0, sticky="we")  # Place it directly below the Treeview
 
         # Configure the Treeview to use the scrollbar
-        results_output_text.configure(xscrollcommand=h_scroll.set)
+        gui_status_table.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scroll.set)
 
         # Configure column and row weights to allow resizing
         frame.grid_rowconfigure(0, weight=1)
@@ -140,7 +144,7 @@ class data_to_use:
             
             #! Need to store all returns here, and if ANY of them is False, then stop with errors
             #! Not fixed yet?
-            outcome = run_analysis(self,file,results_output_text, root)
+            outcome = run_analysis(self,file,gui_status_table, root)
             list_outcomes.append(outcome)
 
         # Need to swtich the  "Running" for "Stopping"

@@ -103,14 +103,14 @@ def get_cols_to_export(file_name):
 
 
 
-def update_gui_status_table(status_list, file, results_output_text, root) -> bool:
+def update_gui_status_table(status_list, file, gui_status_table, root) -> bool:
     """ 
     Now, we check the status output from all files.
     If all created files were successful - Report total succeess and print it in the tree, return all_successful = True
     If any one failed, show all fails statuses and return all_successful = False
     """
     
-    def update_error_status_individual_files(target_file, results_output_text, e, root):
+    def update_error_status_individual_files(target_file, gui_status_table, e, root):
         """Update status in the status treeview for individual files"""
         if e:
             cross_mark = "\u2716"  # ✖
@@ -118,16 +118,16 @@ def update_gui_status_table(status_list, file, results_output_text, root) -> boo
             output_text = f"{cross_mark} {target_file} failed because:"
             
             # Status of file
-            display_status_message(output_text, results_output_text,root)
+            display_status_message(output_text, gui_status_table,root)
             # The returned error message
-            display_status_message(f"{warning_sign} {e}", results_output_text,root)
+            display_status_message(f"{warning_sign} {e}", gui_status_table,root)
 
         else:
             tick_mark = "\u2714"  # ✔
             output_text = f"{tick_mark} {target_file}"
             
             # Status update
-            display_status_message(output_text, results_output_text,root)
+            display_status_message(output_text, gui_status_table,root)
 
     if not all(x.get("file_was_created") for x in status_list):
         # Some files failed
@@ -135,32 +135,32 @@ def update_gui_status_table(status_list, file, results_output_text, root) -> boo
 
         # Status update
         output_text = f"{file[1][:-4]} - Contained errors"
-        display_status_message(output_text,results_output_text, root)
+        display_status_message(output_text,gui_status_table, root)
 
         # Display status for each individual file that was attempted to be created
         for file in status_list:
-            update_error_status_individual_files(file['file'], results_output_text, file['error_text'], root)
+            update_error_status_individual_files(file['file'], gui_status_table, file['error_text'], root)
         
         # Add an empty row in the end if theres an error to make it easier to read
-        display_status_message("",results_output_text, root)
+        display_status_message("",gui_status_table, root)
     else:
         # No errors - all files were successful
         all_successful = True
         
         tick_mark = "\u2714"  # ✔
         output_text = f"{tick_mark} {file[1][:-4]} -- Success"
-        display_status_message(output_text,results_output_text, root)
+        display_status_message(output_text,gui_status_table, root)
 
     return all_successful
 
-def display_status_message(status_update: str, results_output_text, root):
+def display_status_message(status_update: str, gui_status_table, root):
     """Add elements to the treeview"""
-    results_output_text.insert("",END, text = status_update)
-    results_output_text.see(results_output_text.get_children()[-1]) 
+    gui_status_table.insert("",END, text = status_update)
+    gui_status_table.see(gui_status_table.get_children()[-1]) 
 
 
 #! MAIN
-def run_analysis(data, file, results_output_text, root):
+def run_analysis(data, file, gui_status_table, root):
 
     # ------------------------ Inputs ------------------------
     # Set channels
@@ -334,7 +334,7 @@ def run_analysis(data, file, results_output_text, root):
 
         # Verify the outcome of each file.
         # If any file failed, list all fails with their respective status
-        all_files_were_successful = update_gui_status_table(status_list, file, results_output_text, root)
+        all_files_were_successful = update_gui_status_table(status_list, file, gui_status_table, root)
   
     return all_files_were_successful
     

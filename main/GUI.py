@@ -117,9 +117,9 @@ class data_to_use:
         v_scrollbar = ttk.Scrollbar(frame, orient="vertical", command=gui_status_table.yview)
         v_scrollbar.grid(row=0, column=1, sticky="ns")
 
-        # Create a horizontal scrollbar inside the frame and attach it to the Treeview
+        # Add horizontal scrollbar inside the frame and attach it to the Treeview
         h_scroll = ttk.Scrollbar(frame, orient="horizontal", command=gui_status_table.xview)
-        h_scroll.grid(row=1, column=0, sticky="we")  # Place it directly below the Treeview
+        h_scroll.grid(row=1, column=0, sticky="we")  
 
         # Configure the Treeview to use the scrollbar
         gui_status_table.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scroll.set)
@@ -145,7 +145,7 @@ class data_to_use:
             outcome = run_analysis(self,file,gui_status_table, root)
             list_outcomes.append(outcome)
 
-        # Need to swtich the  "Running" for "Stopping"
+        # Check if the run has been cancelled and updates the label
         if exit_event.is_set():
             status_title.config(text = 'Stopped early',foreground='red')
         elif all(list_outcomes):
@@ -232,8 +232,7 @@ def trigger_calculations():
 
     #? If not all configuration is done and Validation failed
     except TypeError:
-        ##! fix this - if you reset values, and run again, you cant see the verify message because
-        #! Its blocked by "Verify etc". Fix 
+   
         # If there is a title, it needs to be removed first. Else do nothing
         try:
             files_processed_titles.config(text = "")
@@ -279,7 +278,6 @@ def validate_and_update_inputs() -> bool:
     Validate Combobox fields 
     Validate input field
     Return True/False (if validation passes/fails) and change style depending on results'''
-    # TODO - These can be harmonized. Use a 'type check' on the widget to find the right name
 
     def is_float(value):
         try:
@@ -463,7 +461,7 @@ def reset_all_data() -> None:
 #! ------------------------------ Create the Frame of the GUI ------------------------------
 root = Tk()
 
-#? Attempt of fixing the scailing
+#? Fixing the scailing
 # ----------------------------------------------------------------------------------------------------
 def get_dpi():
     screen = Tk()

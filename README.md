@@ -1,15 +1,16 @@
 #  Auto Analysis and Tables (ANT) Version 1
 
-Running Auto ANT as an application
+# Running Auto ANT as an application
+Running Auto ANT as an application does not require any programming expertise. After downloading the application, it can be run without any further installations.
 1. Open the folder "Ready to use applications"
 2. Select the relevant zip file depending on your operating system (mac or PC) and click it
-3. In the upper right corner there aree 3 dots ("..."). Click this, and download the .zip file
+3. In the upper right corner there are 3 dots ("..."). Click this, and download the .zip file
 4. Unzip the file 
 5. Right click the file and select open (if you double click it directly, a warning may prevent it from opening)
 6. The application might take a minute to open. Once opened it's ready to be used.
 
-# Running the application via the code
-To use the code for the application, the user will need to download the repo (either via cloning or downloading the zip).
+# Running Auto ANT via code 
+To run Auto ANT via code, the user will need to download the repo (either via cloning or downloading the zip).
 To run the code, the user will need to use python 3.7.3.
 
 ## Easiest Install: Via Conda 
@@ -31,13 +32,6 @@ To run the code, the user will need to use python 3.7.3.
 2. (If not already activated) Activate the VENV
 3. Navigate to the folder with the GUI installed 
 4. in Conda promt, write "python run_analysis.py".
-
-## Useful Litterature 
-- Conda - https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-python 
-- Virtual Environments in Conda - https://medium.com/swlh/setting-up-a-conda-environment-in-less-than-5-minutes-e64d8fc338e4 
-- Pip (installing packages in Python) - https://medium.com/@pdx.lucasm/understanding-pip-the-package-installer-for-python-d3401de7072a 
-- Using the terminal (CD is the key command - it allows navigation between directories) - https://medium.com/@roomee/command-line-essentials-a-beginners-guide-to-cmd-commands-6e2c327019d0 
-
 
 #### If the use of this software supports a publication, make sure to reference the creators of the underlying packages.
 - Instructions for how to cite the key packages are in their respective GitHub repositories:

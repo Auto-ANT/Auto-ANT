@@ -89,24 +89,26 @@ def generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, st
                                 'Average rise time (ms)', 'Average fall time (ms)', 'Average AHP abs depth', 'Average AHP time from peak (ms)', 'Average AHP depth from threshold (mV)',
 
                                  #AP1
-                                    'AP1 amplitude (mV)', 'AP1 peak (mV)', 'AP1 width (ms)', 'AP1 half width (ms)','AP1 threshold (mV)',
-                                    'AP1 peak upstroke (V/s)', 'AP1 peak downstroke (V/s)', 'AP1 rise rate', 'AP1 fall rate',
-                                    'AP1 rise time (ms)', 'AP1 fall time (ms)', 'AHP1 abs depth', 'AHP1 time from peak (ms)', 'AHP1 depth from threshold (mV)',
+                                'AP1 amplitude (mV)', 'AP1 peak (mV)', 'AP1 width (ms)', 'AP1 half width (ms)','AP1 threshold (mV)',
+                                'AP1 peak upstroke (V/s)', 'AP1 peak downstroke (V/s)', 'AP1 rise rate', 'AP1 fall rate',
+                                'AP1 rise time (ms)', 'AP1 fall time (ms)', 'AHP1 abs depth', 'AHP1 time from peak (ms)', 'AHP1 depth from threshold (mV)',
                 
                                 #AP2
-                                    'AP2 amplitude (mV)', 'AP2 peak (mV)', 'AP2 width (ms)', 'AP2 half width (ms)','AP2 threshold (mV)',
-                                    'AP2 peak upstroke (V/s)', 'AP2 peak downstroke (V/s)', 'AP2 rise rate', 'AP2 fall rate',
-                                    'AP2 rise time (ms)', 'AP2 fall time (ms)', 'AHP2 abs depth', 'AHP2 time from peak (ms)', 'AHP2 depth from threshold (mV)',
+                                'AP2 amplitude (mV)', 'AP2 peak (mV)', 'AP2 width (ms)', 'AP2 half width (ms)','AP2 threshold (mV)',
+                                'AP2 peak upstroke (V/s)', 'AP2 peak downstroke (V/s)', 'AP2 rise rate', 'AP2 fall rate',
+                                'AP2 rise time (ms)', 'AP2 fall time (ms)', 'AHP2 abs depth', 'AHP2 time from peak (ms)', 'AHP2 depth from threshold (mV)',
                                     
                                 #APsL
-                                   'APsL amplitude (mV)', 'APsL peak (mV)', 'APsL width (ms)', 'APsL half width (ms)','APsL threshold (mV)',
-                                    'APsL peak upstroke (V/s)', 'APsL peak downstroke (V/s)', 'APsL rise rate', 'APsL fall rate',
-                                    'APsL rise time (ms)', 'APsL fall time (ms)', 'AHPsL abs depth', 'AHPsL time from peak (ms)', 'AHPsL depth from threshold (mV)',
+                                'APsL amplitude (mV)', 'APsL peak (mV)', 'APsL width (ms)', 'APsL half width (ms)','APsL threshold (mV)',
+                                'APsL peak upstroke (V/s)', 'APsL peak downstroke (V/s)', 'APsL rise rate', 'APsL fall rate',
+                                'APsL rise time (ms)', 'APsL fall time (ms)', 'AHPsL abs depth', 'AHPsL time from peak (ms)', 'AHPsL depth from threshold (mV)',
                                     
                                 #APL
-                                    'APL amplitude (mV)', 'APL peak (mV)', 'APL width (ms)', 'APL half width (ms)','APL threshold (mV)',
-                                    'APL peak upstroke (V/s)', 'APL peak downstroke (V/s)', 'APL rise rate', 'APL fall rate',
-                                    'APL rise time (ms)', 'APL fall time (ms)', 'AHPL abs depth', 'AHPL time from peak (ms)', 'AHPL depth from threshold (mV)'])
+                                'APL amplitude (mV)', 'APL peak (mV)', 'APL width (ms)', 'APL half width (ms)','APL threshold (mV)',
+                                'APL peak upstroke (V/s)', 'APL peak downstroke (V/s)', 'APL rise rate', 'APL fall rate',
+                                'APL rise time (ms)', 'APL fall time (ms)', 'AHPL abs depth', 'AHPL time from peak (ms)', 'AHPL depth from threshold (mV)',
+                                # # AP1/APL    
+                                'Amplitude AP1/APL', 'Peak AP1/APL', 'Half width AP1/APL'])
 
     for sweep in abf.sweepList:
         # abf.setSweep(sweep)
@@ -206,7 +208,7 @@ def generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, st
                 table.loc[length, 'AHP2 abs depth'] = feature_values['AHP_depth_abs'][1]
                 #table.loc[length, 'AHP1_depth'] = feature_values['AHP_depth'][0] 
                 table.loc[length, 'AHP2 time from peak (ms)'] = feature_values['AHP_time_from_peak'][1] 
-                table.loc[length, 'AHP2 depth from threshold (mV)'] = (feature_values['AHP_depth_abs'] [1] - feature_values['AP_begin_voltage'] [0])
+                table.loc[length, 'AHP2 depth from threshold (mV)'] = (feature_values['AHP_depth_abs'] [1] - feature_values['AP_begin_voltage'] [1])
                 
             else:
                 table.loc[length, 'AP2 amplitude (mV)'] = None
@@ -228,10 +230,10 @@ def generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, st
 
                 table.loc[length, 'AHPsL abs depth'] = feature_values['AHP_depth_abs'][-2]
                 table.loc[length, 'AHPsL time from peak (ms)'] = feature_values['AHP_time_from_peak'][-2] 
-                table.loc[length, 'AHPsL depth from threshold (mV)'] = (feature_values['AHP_depth_abs'] [-2] - feature_values['AP_begin_voltage'] [0])
+                table.loc[length, 'AHPsL depth from threshold (mV)'] = (feature_values['AHP_depth_abs'] [-2] - feature_values['AP_begin_voltage'] [-2])
                 
             #AP last
-            if len(feature_values['AP_amplitude']) > 3:
+            if len(feature_values['AP_amplitude']) > 2:
                 table.loc[length, 'APL amplitude (mV)'] = list(feature_values['AP_amplitude'])[-1] # [0] returns values of first action potential, [1], for 2nd, etc. 
                 table.loc[length, 'APL peak (mV)'] = feature_values['peak_voltage'][-1]
                 table.loc[length, 'APL width (ms)'] = feature_values['AP_width'][-1] 
@@ -246,17 +248,17 @@ def generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, st
 
                 table.loc[length, 'AHPL abs depth'] = feature_values['AHP_depth_abs'][-1]
                 table.loc[length, 'AHPL time from peak (ms)'] = feature_values['AHP_time_from_peak'][-1] 
-                table.loc[length, 'AHPL depth from threshold (mV)'] = (feature_values['AHP_depth_abs'] [-1] - feature_values['AP_begin_voltage'] [0])
+                table.loc[length, 'AHPL depth from threshold (mV)'] = (feature_values['AHP_depth_abs'] [-1] - feature_values['AP_begin_voltage'] [-1])
 
             else:
                     table.loc[length, 'APL amplitude (mV)'] = None
                     
             # Comparisons
             if len(feature_values['AP_amplitude']) > 2:
-                table.loc[length, 'Amplitude AP1/APL'] = (feature_values['AP_amplitude'] [0]/feature_values['AP_amplitude'] [-1])
-                table.loc[length, 'Peak AP1/APL'] = (feature_values['peak_voltage'] [0]/feature_values['peak_voltage'] [-1])
-                table.loc[length, 'Half width AP1/APL'] = (feature_values['spike_half_width'] [0]/feature_values['spike_half_width'] [-1])
-                      
+                table.loc[length, 'Amplitude AP1/APL'] = (feature_values['AP_amplitude'][0] / feature_values['AP_amplitude'][-1])
+                table.loc[length, 'Peak AP1/APL'] = (feature_values['peak_voltage'][0] / feature_values['peak_voltage'][-1])
+                table.loc[length, 'Half width AP1/APL'] = (feature_values['spike_half_width'][0] / feature_values['spike_half_width'][-1])
+                     
     return table 
 
 def merge_ipfx_ap_tables(ipfx_table, ap_table):

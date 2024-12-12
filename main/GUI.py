@@ -128,7 +128,8 @@ class data_to_use:
         # ------------------------ For Input ------------------------
         # Automatic Input - Get the list of all files in the directory
         dir_list = os.listdir(self.input_folder_name)
-
+        # Ensures files are handled in alphabetical order
+        dir_list.sort()
         # Here, file[0] is the iterator number, file[1] is the actual value
         list_outcomes = []
         for file in enumerate(dir_list):

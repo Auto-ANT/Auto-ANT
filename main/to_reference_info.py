@@ -52,11 +52,11 @@ def to_reference():
     title = ttk.Label(frame, text="Licenses", style = "TopHeader.TLabel")
     title.grid(row=6, column=1, sticky = 'w', pady = (5,3), padx=(10, 0), columnspan = 1)
     
-    license_intro_text = f"""This software relies upon the ipfx python package, which has the following license:"""
-    license_intro = ttk.Label(frame, text=license_intro_text, style = "SubHeader.TLabel")
-    license_intro.grid(row = 7, column = 1, padx=(10, 0), sticky = 'w', columnspan = 1)
+    ipfx_license_intro_text = f"""This software relies upon the ipfx python package, which has the following license:"""
+    ipfx_license_intro = ttk.Label(frame, text=ipfx_license_intro_text, style = "SubHeader.TLabel")
+    ipfx_license_intro.grid(row = 7, column = 1, padx=(10, 0), sticky = 'w', columnspan = 1)
 
-    license_overview_text = f"""\
+    ipfx_license_overview_text = f"""\
     Allen Institute Software License - This software license is the 2-clause BSD license 
     plus a third clause that prohibits redistribution for commercial purposes without further permission.\
 
@@ -84,8 +84,42 @@ def to_reference():
     WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
     USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
 
-    description = ttk.Label(frame, text=license_overview_text, style = "pText.TLabel")
-    description.grid(row = 8, column = 1, sticky = 'w', columnspan = 1)
+    ipfx_license = ttk.Label(frame, text=ipfx_license_overview_text, style = "pText.TLabel")
+    ipfx_license.grid(row = 8, column = 1, sticky = 'w', columnspan = 1)
+
+
+    efel_license_intro_text = f"""\nThis software also relies upon the efel python package, which has the following license:"""
+    efel_license_intro = ttk.Label(frame, text=efel_license_intro_text, style = "SubHeader.TLabel")
+    efel_license_intro.grid(row = 9, column = 1, padx=(10, 0), sticky = 'w', columnspan = 1)
+
+    efel_license_overview_text = f"""\
+    eFEL - Electrophysiology Feature Extraction Library
+
+    eFEL is licensed under the LGPL, unless noted otherwise, e.g., for external 
+    dependencies. See files COPYING and COPYING.lesser for the full license. 
+    Examples and test are BSD-licensed.
+    External dependencies are either LGPL or BSD-licensed. 
+    See file ACKNOWLEDGEMENTS.txt and AUTHORS.txt for further details.
+
+    Copyright (C) 2009-2021, Blue Brain Project/EPFL. 
+
+    This program is free software: you can redistribute it and/or modify it under 
+    the terms of the GNU Lesser General Public License as published by the 
+    Free Software Foundation, either version 3 of the License, or (at your option) 
+    any later version.
+
+    This program is distributed in the hope that it will be useful, 
+    but WITHOUT ANY WARRANTY; 
+    without even the implied warranty of 
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+
+    See the GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License 
+    along with this program.  If not, see <http://www.gnu.org/licenses/>."""
+
+    efel_license = ttk.Label(frame, text=efel_license_overview_text, style = "pText.TLabel")
+    efel_license.grid(row = 10, column = 1, sticky = 'w', columnspan = 1)
 
     # Update the scroll region to include the new content
     frame.update_idletasks()

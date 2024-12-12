@@ -1,4 +1,7 @@
-
+"""
+utils.py 
+This file contains functions that are used within multiple files
+"""
 import os
 import sys
 

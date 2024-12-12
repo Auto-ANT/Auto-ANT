@@ -1,3 +1,8 @@
+"""
+gui_style_definitions.py 
+This file contains styles for the GUI
+
+"""
 from tkinter import ttk
 
 
@@ -8,10 +13,8 @@ def init_gui_style(root):
     root.configure(background='white')
 
     # ----------------------------------------------------------------------------------
-
     # Create Standard Style
-    # So, ttk and tk are seperate. style only works on widgets created with TTK
-    # This adds style, and naming that style variable as  W.Tbutton (TButton -  ttk.Button,Tentry for ttk.Entry).
+
     #? Buttons
     style.configure('Trigger.TButton', 
                     font = ('calibri', 12, 'bold'),
@@ -148,7 +151,6 @@ def init_gui_style(root):
                     background = 'white')
 
 
-    #! To be implemented
     style.configure('Hover.TLabel',
                     font = ('calibri', 14, 'bold'),
                     foreground = 'gray', 

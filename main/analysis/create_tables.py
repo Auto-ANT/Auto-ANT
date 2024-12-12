@@ -1,3 +1,12 @@
+"""
+create_tables.py 
+Houses all functions used to create table, i.e.,
+Neuronal overview table, Action Potential table, and membrane potential table
+
+Input: ABF files,
+Output: Tables (pandas dataframes)
+"""
+
 import pandas as pd
 from ipfx.feature_extractor import SpikeFeatureExtractor, SpikeTrainFeatureExtractor
 from efel import getFeatureValues

@@ -1,3 +1,10 @@
+"""
+neuronal_overview_config.py 
+
+This file contains all logic for the neuronal overview configuration page.
+It reads and saves to a csv which acts as a mini database, where users selection for 
+which columns to include in the table are stored
+"""
 from tkinter import ttk , Toplevel, BooleanVar, Checkbutton
 from idlelib.tooltip import Hovertip
 import pandas as pd

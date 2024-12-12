@@ -1,9 +1,10 @@
+"""
+create_plots.py 
+Houses all functions used to create plots, i.e.,
 
-#! FILE 1 - CREATE PLOTS
-# Pupose: Creates charts 
-# Input ABF file, 
-# Outputs Charts. 
-# Returns three plots
+Input: ABF files,
+Output: Plots
+"""
  
 from ipfx.feature_extractor import SpikeFeatureExtractor, SpikeTrainFeatureExtractor
 import pandas as pd

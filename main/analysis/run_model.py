@@ -1,13 +1,18 @@
+"""
+run_analysis.py 
+This file is called for each .abf file, and based on the users selections it evaluates which tables and charts to create.
+It then calls other functions in other files to create said tables and charts, and saves them.
 
+Input: Class of information from the GUI,
+Output: Status on success or fail for all files.
+"""
 import os
-
 import pyabf
 import pandas as pd
 import openpyxl
 from tkinter import END
 
 import matplotlib.pyplot as plt
-
 
 
 from main.analysis.create_plots import create_plot_firing_current, \
@@ -96,9 +101,68 @@ def get_cols_to_export(file_name):
     
     return cols_to_export
 
-#! MAIN?
+
+
+def update_gui_status_table(status_list, file, results_output_text, root) -> bool:
+    """ 
+    Now, we check the status output from all files.
+    If all created files were successful - Report total succeess and print it in the tree, return all_successful = True
+    If any one failed, show all fails statuses and return all_successful = False
+    """
+    
+    def update_error_status_individual_files(target_file, results_output_text, e, root):
+        """Update status in the status treeview for individual files"""
+        if e:
+            cross_mark = "\u2716"  # ✖
+            warning_sign = "\u26A0"  
+            output_text = f"{cross_mark} {target_file} failed because:"
+            
+            # Status of file
+            display_status_message(output_text, results_output_text,root)
+            # The returned error message
+            display_status_message(f"{warning_sign} {e}", results_output_text,root)
+
+        else:
+            tick_mark = "\u2714"  # ✔
+            output_text = f"{tick_mark} {target_file}"
+            
+            # Status update
+            display_status_message(output_text, results_output_text,root)
+
+    if not all(x.get("file_was_created") for x in status_list):
+        # Some files failed
+        all_successful = False
+
+        # Status update
+        output_text = f"{file[1][:-4]} - Contained errors"
+        display_status_message(output_text,results_output_text, root)
+
+        # Display status for each individual file that was attempted to be created
+        for file in status_list:
+            update_error_status_individual_files(file['file'], results_output_text, file['error_text'], root)
+        
+        # Add an empty row in the end if theres an error to make it easier to read
+        display_status_message("",results_output_text, root)
+    else:
+        # No errors - all files were successful
+        all_successful = True
+        
+        tick_mark = "\u2714"  # ✔
+        output_text = f"{tick_mark} {file[1][:-4]} -- Success"
+        display_status_message(output_text,results_output_text, root)
+
+    return all_successful
+
+def display_status_message(status_update: str, results_output_text, root):
+    """Add elements to the treeview"""
+    results_output_text.insert("",END, text = status_update)
+    results_output_text.see(results_output_text.get_children()[-1]) 
+
+
+#! MAIN
 def run_analysis(data, file, results_output_text, root):
 
+    # ------------------------ Inputs ------------------------
     # Set channels
     channel = int(data.channel_1) #for recording
     channel_c = int(data.channel_2) #for current
@@ -131,8 +195,15 @@ def run_analysis(data, file, results_output_text, root):
     if not os.path.exists(folder_path): 
         os.makedirs(folder_path)
 
-    all_successful = True
+    # ------------------------ Status Trackers ------------------------
+    # All_succesful tracks the total status - i.e. if all files were successful - it returns true.
+    # If any one file, for any abf file failed, Returns false
+    all_files_were_successful = True
+    # Status list logs each file that was created, the status (success or fail) and any error text if it failed 
+    status_list = []
 
+
+    # ------------------------ Analysis and File Creation ------------------------
     # Only attempt analysis of a file if it is an abf file (just incase there's some other file there)
     if file[1].endswith('.abf'):
         
@@ -143,53 +214,108 @@ def run_analysis(data, file, results_output_text, root):
         abf = pyabf.ABF(data_path)
         abf_c = pyabf.ABF(data_path)
         
-        try: 
-            # In file names, the [:-4] is included to remove '.abf' from the filename
-            # Manipulate Data, Generate and Save Plots
-            if data.graph_1_state:
+        # In file names, the [:-4] is included to remove '.abf' from the filename
+        # Manipulate Data, Generate and Save Plots
+        if data.graph_1_state:
+            try:
                 firing_currents = create_plot_firing_current(abf, abf_c, channel_c, t1_c, t2_c, stim_start, stim_end)
                 firing_currents.savefig(folder_path + f"/{file[1][:-4]}_firing_current.png", dpi=300)
                 plt.close()
 
-            if data.graph_2_state:
+                file_was_created = True
+                error_text = False
+
+            except Exception as e:
+                file_was_created = False
+                error_text = e
+
+            status_list.append({"file": "Firing Currents plot", "file_was_created": file_was_created, "error_text":error_text})
+
+        if data.graph_2_state:
+            try:
                 input_resistance = create_plot_recording(abf, abf_c)
                 input_resistance.savefig(folder_path + f"/{file[1][:-4]}_recording.png", dpi=300)
                 plt.close()
 
-            if data.graph_3_state:
+                file_was_created = True
+                error_text = False
+
+            except Exception as e:
+                file_was_created = False
+                error_text = e
+
+            status_list.append({"file": "Recording plot", "file_was_created": file_was_created, "error_text":error_text})
+
+        if data.graph_3_state:
+            try:
                 input_resistance_currents = create_plot_protocol(abf, abf_c, channel_c)
                 input_resistance_currents.savefig(folder_path + f"/{file[1][:-4]}_protocol.png", dpi=300)
                 plt.close()
+                
+                file_was_created = True
+                error_text = False
+            except Exception as e:
+                file_was_created = False
+                error_text = e
 
-            if data.graph_4_state:
+            status_list.append({"file": "Protocol plot", "file_was_created": file_was_created, "error_text":error_text})
+
+        if data.graph_4_state:
+            try:
                 current_voltage = create_plot_current_voltage(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
                 current_voltage.savefig(folder_path + f"/{file[1][:-4]}_current_voltage_linear_regression.png", dpi=300)
                 plt.close()
 
-            # Generate tables
-            if data.ap_table:
+                file_was_created = True
+                error_text = False
+            except Exception as e:
+                file_was_created = False
+                error_text = e
+
+            status_list.append({"file": "Current voltage linear regression plot", "file_was_created": file_was_created, "error_text": error_text})
+
+        # ---------------------- Generate tables ----------------------
+        if data.ap_table:
+            try:
                 # Generate table with all columns
                 complete_ap_table = create_ap_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
                 # Convert selected fields from config to list of columns. 
                 cols_to_export = get_cols_to_export('main/analysis/output_config/firing_properties_config.csv')
                 # Export table data into new excel sheet
                 create_and_add_sheet_to_excel(final_output_file_name_AP, file[0], file[1], complete_ap_table, cols_to_export)
+                
+                file_was_created = True
+                error_text = False
+            
+            except Exception as e:
+                file_was_created = False
+                error_text = e
 
-            if data.membrane_table:
+            status_list.append({"file": output_file_name_AP, "file_was_created": file_was_created, "error_text":error_text})
+
+        if data.membrane_table:
+            try:
                 # Generate table
                 complete_table_membrane_properties = create_membrane_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
                 # Convert selected fields from config to list of columns. 
                 cols_to_export = get_cols_to_export('main/analysis/output_config/passive_membrane_properties_config.csv')
-        
                 # Export table data into new excel sheet
                 create_and_add_sheet_to_excel(final_output_file_name_MB, file[0], file[1], complete_table_membrane_properties, cols_to_export)
-                
-                # Load the workbook and print the sheet names - this prevents a buggy behaviour
+                # Load the workbook and immediately - this prevents a buggy behaviour
                 workbook = openpyxl.load_workbook(f"{final_output_file_name_MB}.xlsx")
                 workbook.close() 
+                
+                file_was_created = True
+                error_text = False
 
-            # Generate tables
-            if data.neuronal_overview_table:
+            except Exception as e:
+                file_was_created = False
+                error_text = e
+
+            status_list.append({"file": output_file_name_MB, "file_was_created": file_was_created, "error_text":error_text})
+
+        if data.neuronal_overview_table:
+            try:
                 # Generate table with all columns
                 complete_neuronal_overview_table = create_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
                 # Convert selected fields from config to list of columns. 
@@ -197,35 +323,18 @@ def run_analysis(data, file, results_output_text, root):
                 # Export table data into excel
                 create_and_add_row_to_excel(final_output_file_name_NO, file[0], file[1],complete_neuronal_overview_table, cols_to_export)
 
-            output_text = f"{file[1][:-4]}"
+                file_was_created = True
+                error_text = False
 
-            # Status update
-            display_most_recent_processed_file(output_text,results_output_text, root)
-            display_most_recent_processed_file("--Completed successfully",results_output_text, root)
-        
-        except Warning as w:
-            output_text = f"{file[1][:-4]} received a warning because:"
-            print(output_text)
-            print(w)
+            except Exception as e:
+                file_was_created = False
+                error_text = e
 
-            # Status update
-            display_most_recent_processed_file(output_text, results_output_text,root)
-            display_most_recent_processed_file(f"--{w}", results_output_text,root)
+            status_list.append({"file": output_file_name_NO, "file_was_created": file_was_created, "error_text":error_text})
 
-        # Maybe rephrase "Failed becase...to something less harsh"
-        except Exception as e:
-            output_text = f"{file[1][:-4]} failed because:"
-            print(output_text)
-            print(e)
-
-            # Status update
-            display_most_recent_processed_file(output_text, results_output_text,root)
-            display_most_recent_processed_file(f"--{e}", results_output_text,root)
-
-            all_successful = False
-
-    return all_successful
+        # Verify the outcome of each file.
+        # If any file failed, list all fails with their respective status
+        all_files_were_successful = update_gui_status_table(status_list, file, results_output_text, root)
+  
+    return all_files_were_successful
     
-def display_most_recent_processed_file(status_update: str, results_output_text, root):
-    results_output_text.insert("",END, text = status_update)
-

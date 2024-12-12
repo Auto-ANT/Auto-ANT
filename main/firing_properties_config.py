@@ -1,3 +1,10 @@
+"""
+firing_properties_config.py 
+
+This file contains all logic for the firing properties configuration page.
+It reads and saves to a csv which acts as a mini database, where users selection for 
+which columns to include in the table are stored
+"""
 from tkinter import ttk , Toplevel, BooleanVar, Checkbutton
 from idlelib.tooltip import Hovertip
 import pandas as pd
@@ -70,7 +77,7 @@ def config_firing_properities_table():
 
         #! NOTE
         #! So, there are some variables that repat. EG APamplitude 1, 2 , 3 etc.
-        #! Users sjould only select AP_Amplitude, not each number
+        #! Users should only select AP_Amplitude, not each number
         #! the solution is - They all share the same "show name" but they have different technical names
         #! That way, when it is joined in the next step, it becomes a many-to-one join.
         #? Conclusion - If you selecct AP_amplitude, you get all ap_amplitudes (1,2,3 etc)

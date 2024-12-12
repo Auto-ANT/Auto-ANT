@@ -1,3 +1,8 @@
+"""
+to_reference_info.py 
+This file contains all logic for the references/licenses page
+"""
+
 from tkinter import ttk, Frame, Toplevel, Canvas,Scrollbar, VERTICAL
 from gui_style_definitions import init_gui_style
 

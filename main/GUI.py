@@ -1,4 +1,10 @@
-# Auto ANT
+"""
+GUI.py 
+This file contains all logic for the main GUI
+
+Input: User provides input
+Output: Calls other functions to create files
+"""
 import os
 import sys
 from tkinter import ttk, Tk, PhotoImage, Menu, Checkbutton, BooleanVar, filedialog, END

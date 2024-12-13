@@ -107,11 +107,14 @@ class data_to_use:
         # ---------- GUI status table / Files Processed List------------------------------------------
         frame = ttk.Frame(root)
         frame.grid(row=3, column=4, padx=(0, 20), sticky="nwe", rowspan=17)
+        # Configure column and row weights to allow resizing
+        frame.grid_rowconfigure(0, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
 
         # Create the Treeview widget inside the frame
         gui_status_table = ttk.Treeview(frame, column=("File status"), show="tree", height = 16)
         gui_status_table.grid(row=0, column=0, sticky="nswe")
-        gui_status_table.column("#0", width=500, stretch=True)
+        gui_status_table.column("#0", width=500, stretch=True, anchor = 'w')
 
         # Add vertical scrollbar
         v_scrollbar = ttk.Scrollbar(frame, orient="vertical", command=gui_status_table.yview)
@@ -123,10 +126,6 @@ class data_to_use:
 
         # Configure the Treeview to use the scrollbar
         gui_status_table.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scroll.set)
-
-        # Configure column and row weights to allow resizing
-        frame.grid_rowconfigure(0, weight=1)
-        frame.grid_columnconfigure(0, weight=1)
         # ------------------------------------------------------------------------
 
         # ------------------------ For Input ------------------------

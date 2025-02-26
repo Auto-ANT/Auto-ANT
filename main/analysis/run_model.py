@@ -11,6 +11,7 @@ import pyabf
 import pandas as pd
 import openpyxl
 from tkinter import END
+import logging
 
 import matplotlib.pyplot as plt
 
@@ -24,7 +25,8 @@ from main.analysis.create_tables import create_ap_table,\
                                     create_membrane_table,\
                                     create_neuronal_overview_table
 
-from utils import get_resource_path
+from utils import get_resource_path, simplify_error_message
+
 
 #! Saving
 def create_and_add_sheet_to_excel(file_name, iterator_number, cell_file_name, table, cols_to_export:False): 
@@ -40,21 +42,23 @@ def create_and_add_sheet_to_excel(file_name, iterator_number, cell_file_name, ta
 
     # If its the first cell, create the file
     if iterator_number == 0:
-        table.to_excel(full_file_name, sheet_name= sheetname, index=False) 
-          
+        # table.to_excel(full_file_name, sheet_name= sheetname, index=False) 
+        with pd.ExcelWriter(full_file_name, mode = 'w') as writer:
+                table.to_excel(writer, sheet_name = sheetname, index=False) 
+
     # If the file already exists, add a new sheet to it
     else:
         if os.path.exists(full_file_name):
             # Maybe check if the file exists first? If so 
-            with pd.ExcelWriter(full_file_name, mode = 'a') as writer:
+            with pd.ExcelWriter(full_file_name, mode = 'a', if_sheet_exists="replace") as writer:
                 table.to_excel(writer, sheet_name = sheetname, index=False) 
 
         else:
-            # Maybe check if the file exists first? If so 
+            # Maybe check if the file exists first?
             with pd.ExcelWriter(full_file_name, mode = 'w') as writer:
                 table.to_excel(writer, sheet_name = sheetname, index=False)             
 
-#! Need new function - create_and_add_row_to_excel (so only 1 sheet)
+
 def create_and_add_row_to_excel(file_name, iterator_number, cell_name,  table, cols_to_export:False): 
     
     # Name the sheet 
@@ -70,7 +74,8 @@ def create_and_add_row_to_excel(file_name, iterator_number, cell_name,  table, c
 
     # If its the first cell, create the file
     if iterator_number == 0:
-        table.to_excel(full_file_name, sheet_name = sheetname, index=False) 
+        with pd.ExcelWriter(full_file_name, mode = 'w') as writer:
+            table.to_excel(writer, sheet_name = sheetname, index=False) 
           
     # If the file already exists, add a new sheet to it
     else:
@@ -119,8 +124,9 @@ def update_gui_status_table(status_list, file, gui_status_table, root) -> bool:
             
             # Status of file
             display_status_message(output_text, gui_status_table,root)
-            # The returned error message
-            display_status_message(f"{warning_sign} {e}", gui_status_table,root)
+            # Convert the error message (which is in the log) to a simpler error message
+            simplified_error_message = simplify_error_message(e, target_file)
+            display_status_message(f"{warning_sign} {simplified_error_message}", gui_status_table,root)
 
         else:
             tick_mark = "\u2714"  # ✔
@@ -161,7 +167,7 @@ def display_status_message(status_update: str, gui_status_table, root):
 
 #! MAIN
 def run_analysis(data, file, gui_status_table, root):
-
+    
     # ------------------------ Inputs ------------------------
     # Set channels
     channel = int(data.channel_1) #for recording
@@ -202,11 +208,10 @@ def run_analysis(data, file, gui_status_table, root):
     # Status list logs each file that was created, the status (success or fail) and any error text if it failed 
     status_list = []
 
-
     # ------------------------ Analysis and File Creation ------------------------
     # Only attempt analysis of a file if it is an abf file (just incase there's some other file there)
     if file[1].endswith('.abf'):
-        
+       
         # Define the full file path
         data_path = data.input_folder_name + '/' + file[1]
         
@@ -214,69 +219,106 @@ def run_analysis(data, file, gui_status_table, root):
         abf = pyabf.ABF(data_path)
         abf_c = pyabf.ABF(data_path)
         
+        logging.info(f"Analyzing {file[1]}")
+
         # In file names, the [:-4] is included to remove '.abf' from the filename
         # Manipulate Data, Generate and Save Plots
         if data.graph_1_state:
             try:
-                firing_currents = create_plot_firing_current(abf, abf_c, channel_c, t1_c, t2_c, stim_start, stim_end)
+                logging.info(f"Adding to Firing-Current Plot")
+                firing_currents = create_plot_firing_current(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
                 firing_currents.savefig(folder_path + f"/{file[1][:-4]}_firing_current.png", dpi=300)
                 plt.close()
 
                 file_was_created = True
                 error_text = False
+                logging.info(f"--> Added successfully to Firing-Current Plot")
 
             except Exception as e:
                 file_was_created = False
                 error_text = e
+                logging.error(f"--> Errors when added to Firing-Current Plot")
+                logging.error(f"--> Error type: {type(e).__name__}")
+                logging.error(f"--> Error message: {e}")
+          
+            finally:
+                plt.close()
 
             status_list.append({"file": "Firing Currents plot", "file_was_created": file_was_created, "error_text":error_text})
 
         if data.graph_2_state:
             try:
-                input_resistance = create_plot_recording(abf, abf_c)
+                logging.info(f"Adding to Recording Plot")
+                input_resistance = create_plot_recording(abf,abf_c, channel, channel_c)
                 input_resistance.savefig(folder_path + f"/{file[1][:-4]}_recording.png", dpi=300)
                 plt.close()
 
                 file_was_created = True
                 error_text = False
+                logging.info(f"--> Added successfully to Recording Plot")
 
             except Exception as e:
                 file_was_created = False
                 error_text = e
+                logging.error(f"--> Errors when added to Recording Plot")
+                logging.error(f"--> Error type: {type(e).__name__}")
+                logging.error(f"--> Error message: {e}")
+            
+            finally:
+                plt.close()
 
             status_list.append({"file": "Recording plot", "file_was_created": file_was_created, "error_text":error_text})
 
         if data.graph_3_state:
             try:
-                input_resistance_currents = create_plot_protocol(abf, abf_c, channel_c)
+                logging.info(f"Adding to Protocol Plot")
+                input_resistance_currents = create_plot_protocol(abf, abf_c, channel, channel_c)
                 input_resistance_currents.savefig(folder_path + f"/{file[1][:-4]}_protocol.png", dpi=300)
                 plt.close()
                 
                 file_was_created = True
                 error_text = False
+                logging.info(f"--> Added successfully to Protocol Plot")
+
             except Exception as e:
                 file_was_created = False
                 error_text = e
+                logging.error(f"--> Errors when added to Protocol Plot")
+                logging.error(f"--> Error type: {type(e).__name__}")
+                logging.error(f"--> Error message: {e}")
+            
+            finally:
+                plt.close()
 
             status_list.append({"file": "Protocol plot", "file_was_created": file_was_created, "error_text":error_text})
 
         if data.graph_4_state:
             try:
+                logging.info(f"Adding to Current-voltage linear regression plot")
                 current_voltage = create_plot_current_voltage(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
                 current_voltage.savefig(folder_path + f"/{file[1][:-4]}_current_voltage_linear_regression.png", dpi=300)
                 plt.close()
 
                 file_was_created = True
                 error_text = False
+                logging.info(f"--> Added successfully to Current-voltage linear regression plot")
+
             except Exception as e:
                 file_was_created = False
                 error_text = e
+                logging.error(f"--> Errors when added to Current-voltage linear regression plot")
+                logging.error(f"--> Error type: {type(e).__name__}")
+                logging.error(f"--> Error message: {e}")
+            
+            finally:
+                plt.close()
 
             status_list.append({"file": "Current voltage linear regression plot", "file_was_created": file_was_created, "error_text": error_text})
 
         # ---------------------- Generate tables ----------------------
         if data.ap_table:
             try:
+                logging.info(f"Adding to Firing Properties table")
                 # Generate table with all columns
                 complete_ap_table = create_ap_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
                 # Convert selected fields from config to list of columns. 
@@ -286,15 +328,20 @@ def run_analysis(data, file, gui_status_table, root):
                 
                 file_was_created = True
                 error_text = False
-            
+                logging.info(f"--> Added successfully to Firing Properties table")
+
             except Exception as e:
                 file_was_created = False
                 error_text = e
+                logging.error(f"--> Errors when added to Firing Properties table")
+                logging.error(f"--> Error type: {type(e).__name__}")
+                logging.error(f"--> Error message: {e}")
 
             status_list.append({"file": output_file_name_AP, "file_was_created": file_was_created, "error_text":error_text})
 
         if data.membrane_table:
             try:
+                logging.info(f"Adding to Passive Membrane Properties table")
                 # Generate table
                 complete_table_membrane_properties = create_membrane_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
                 # Convert selected fields from config to list of columns. 
@@ -307,28 +354,56 @@ def run_analysis(data, file, gui_status_table, root):
                 
                 file_was_created = True
                 error_text = False
+                logging.info(f"--> Added successfully to Passive Membrane Properties table")
 
             except Exception as e:
                 file_was_created = False
                 error_text = e
+                logging.error(f"--> Errors when added to Passive Membrane Properties table")
+                logging.error(f"--> Error type: {type(e).__name__}")
+                logging.error(f"--> Error message: {e}")
 
             status_list.append({"file": output_file_name_MB, "file_was_created": file_was_created, "error_text":error_text})
 
         if data.neuronal_overview_table:
             try:
-                # Generate table with all columns
-                complete_neuronal_overview_table = create_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
+                logging.info(f"Adding to Neuronal Overview table")
+
+                firing_properties_columns = ['Rheobase (pA)', 'AP1 Latency (ms)', 'AP1 amplitude (mV)', 
+                                             'AP1 peak (mV)', 'AP1 width (ms)', 'AP1 half width (ms)', 
+                                             'AP1 threshold (mV)', 'AP1 peak upstroke (V/s)', 
+                                             'AP1 peak downstroke (V/s)', 'AP1 rise rate', 
+                                             'AP1 fall rate', 'AP1 rise time (ms)', 'AP1 fall time (ms)', 
+                                             'AHP1 abs depth', 'AHP1 time from peak (ms)', 
+                                             'AHP1 depth from threshold (mV)']
+
+                # Maybe implment so that it can subset mmbrane columns only 
+                membrane_columns = ['Resting membrane potential (mV)', 'Sag amplitude (mV)', 'Sag ratio', 
+                                    'Membrane Input Restance (GOhm)', 'Membrane time constant (ms)', 
+                                    'Membrane capacitance (pF)']
+                
                 # Convert selected fields from config to list of columns. 
                 cols_to_export = get_cols_to_export('main/analysis/output_config/neuronal_overview_config.csv')
+                
+                # Check if firing properties columns are included.
+                # If they are - test for spikes, Else Dont test for spikes no test for spikes
+                include_fp = bool(set(cols_to_export) & set(firing_properties_columns))
+                # Generate table with all columns
+                complete_neuronal_overview_table = create_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, include_fp)
+
                 # Export table data into excel
                 create_and_add_row_to_excel(final_output_file_name_NO, file[0], file[1],complete_neuronal_overview_table, cols_to_export)
 
                 file_was_created = True
                 error_text = False
+                logging.info(f"--> Added successfully to Neuronal Overview table")
 
             except Exception as e:
                 file_was_created = False
                 error_text = e
+                logging.error(f"--> Errors when added to Neuronal Overview table")
+                logging.error(f"--> Error type: {type(e).__name__}")
+                logging.error(f"--> Error message: {e}")
 
             status_list.append({"file": output_file_name_NO, "file_was_created": file_was_created, "error_text":error_text})
 

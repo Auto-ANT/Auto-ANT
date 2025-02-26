@@ -33,6 +33,32 @@ To run the code, the user will need to use python 3.7.3.
 3. Navigate to the folder with the GUI installed 
 4. in Conda promt, write "python run_analysis.py".
 
+## Error Handling
+If an error is encountered while creatinga file, the process for that cell and file will be stopped, but other cells will continue to be analyzed.
+
+For example, if a cell is lacking sweeps, the firing proprties table will skip that file. Other cells on the other hand will be added.
+
+If an error is encountered, a short, summarizing error description is mentioned in the status window. Users can view a more detailed error message within the log. 
+
+Common errors to encounter are 
+- NoSweepsError
+    - Raised when there are no sweeps fulfilling the requirement for firing properties 
+    - May affect the Firing properties table
+- NoNegativeSweepsError
+    - Raised when there are no sweeps fulfilling the requirement for membrane
+    - May affect the Membrane table, the Neuronal Overview table, or the Current-Voltage linear regression plot
+- WrongRecordingChannelError
+    - Raised when the wrong recording channel is used
+    - May affect all tables and plots
+- WrongProtocolChannelError
+    - Raised when the wrong protocol channel is used
+    - May affect all tables and plots
+
+## Detailed Logs
+After a run is completed, a button called "Detailed Logs" will become visible. Clicking this button opens a new window with the logs from recent runs (since the application was opened).
+
+The log shows general information about the files being created (tagged as Info), as well as Warnings (tagged as Warning) and errors (tagged as Errors).
+
 #### If the use of this software supports a publication, make sure to reference the creators of the underlying packages.
 - Instructions for how to cite the key packages are in their respective GitHub repositories:
     - EFEL package (https://github.com/BlueBrain/eFEL)

@@ -3,9 +3,9 @@ create_plots.py
 Houses all functions used to create plots, i.e.,
 
 Input: ABF files,
-Output: Plots
+Output: Plots (or errors)
 """
- 
+
 from ipfx.feature_extractor import SpikeFeatureExtractor, SpikeTrainFeatureExtractor
 import pandas as pd
 from efel import getFeatureValues
@@ -15,42 +15,58 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
+from utils import verify_negative_sweeps, verify_protocol_channel, verify_recording_channel
 
-def create_plot_firing_current(abf, abf_c, channel_c, t1_c, t2_c, stim_start, stim_end):
+
+def create_plot_firing_current(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
     # Set the dataframe for the table
     table_2 = pd.DataFrame()
+    for_verification_all_currents = []
+    for_verification_all_voltages = []
+
+    # Input-output curve
+    currents = []
 
     # Loop function to analyze each voltage and current trace of the file
     for sweep in abf.sweepList:
-        abf.setSweep(sweep)
+        # Set sweep
+        abf.setSweep(sweep, channel = channel)
         abf_c.setSweep(sweep, channel = channel_c)
-
+        
+        # Define more comfortable variable names
         time = abf.sweepX
         voltage = abf.sweepY
         current = abf_c.sweepC
-
-        currents = [] # Current value between t1 and t2 (ms) for each step
+    
+        # For verification of protocols
+        for_verification_all_currents.extend(current)
+        for_verification_all_voltages.append(voltage)
+        
+        # Define start and end times
         t1 = int(t1_c*abf.dataPointsPerMs) 
         t2 = int(t2_c*abf.dataPointsPerMs)
+
         current_mean = np.average(abf_c.sweepC[t1:t2])
+        
+        # X axis
+        currents.append(current_mean)
 
         sfx = SpikeFeatureExtractor(start=stim_start/1000, end=stim_end/1000, filter=None)
         sfx_results = sfx.process(time, voltage, current)
         stfx = SpikeTrainFeatureExtractor (start=stim_start/1000, end=stim_end/1000)
         stfx_results = stfx.process(time, voltage, current, sfx_results)
-
+        
+        # Y Axis
         length = len(table_2)
         table_2.loc[length, 'current_step'] = current_mean
         table_2.loc[length, 'avg_rate'] = stfx_results["avg_rate"]
         
-    fig = plt.figure(figsize=(15, 5))
+    # ------------ Verifications  ------------
+    verify_protocol_channel(for_verification_all_currents)
+    verify_recording_channel(for_verification_all_voltages)
+    # ----------------------------------------
 
-    # Input-output curve
-    currents = []
-    for sweep in abf.sweepList:
-        abf.setSweep(sweep)
-        abf_c.setSweep(sweep, channel = channel_c)
-        currents.append(np.average(abf_c.sweepC[t1:t2]))
+    fig = plt.figure(figsize=(15, 5))
     plt.plot(currents, table_2.loc[:,'avg_rate'])
     plt.xlabel('Current step (pA)', fontsize=16)
     plt.ylabel('Firing Rate (Hz)', fontsize=16)
@@ -58,49 +74,74 @@ def create_plot_firing_current(abf, abf_c, channel_c, t1_c, t2_c, stim_start, st
 
     #plt.title('Firing Rate vs Current')
     
-    return(fig)
+    return fig
 
-
-def create_plot_recording(abf, abf_c):
+def create_plot_recording(abf, abf_c, channel,channel_c):
     # All traces
     fig = plt.figure(figsize=(15, 5))
-    
+    for_verification_all_currents = []
+    for_verification_all_voltages = []
+
     for sweep in abf.sweepList:
-        abf.setSweep(sweep)
+        abf.setSweep(sweep, channel = channel)
+        abf_c.setSweep(sweep, channel = channel_c)
+
+        # For verification of protocols
+        for_verification_all_currents.extend(abf_c.sweepC)
+        for_verification_all_voltages.append(abf.sweepY)
+
         plt.plot(abf.sweepX, abf.sweepY, alpha=.6, label="Sweep %d" % (sweep))
+
+    # Style the plot    
     plt.ylabel('Membrane voltage (mV)', fontsize=16)
     plt.xlabel('Time (s)', fontsize=16)
     plt.tick_params(axis='both', labelsize=12)
     
+    verify_protocol_channel(for_verification_all_currents)
+    verify_recording_channel(for_verification_all_voltages)
+
     # To highlight one trace
     abf.setSweep(0) 
     plt.plot(abf.sweepX, abf.sweepY, linewidth=1, color='black')
 
     return(fig)
 
-def create_plot_protocol(abf, abf_c, channel_c):
+def create_plot_protocol(abf, abf_c, channel, channel_c):
     # All current steps
     fig = plt.figure(figsize=(15, 5))
-    
+
+    for_verification_all_currents = []
+    for_verification_all_voltages = []
+
     for sweep in abf.sweepList:
-        abf.setSweep(sweep)
+        abf.setSweep(sweep, channel = channel)
         abf_c.setSweep(sweep, channel = channel_c)
         current = abf_c.sweepC
+
+        # For verification of protocols
+        for_verification_all_currents.extend(abf_c.sweepC)
+        for_verification_all_voltages.append(abf.sweepY)
+
         plt.plot(abf.sweepX, current, alpha=.6, label="Sweep %d" % (sweep))
-        
+    
+
+    verify_protocol_channel(for_verification_all_currents)
+    verify_recording_channel(for_verification_all_voltages)
+
     plt.ylabel("Current (pA)", fontsize=16)
     plt.xlabel("Time (s)", fontsize=16)
     plt.tick_params(axis='both', labelsize=12)
     
     return(fig)
 
-
-def create_plot_current_voltage (abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
+def create_plot_current_voltage(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
     
-    table_m = pd.DataFrame(columns=['Sweep', 
-                                    'current_pA', 
+    table_m = pd.DataFrame(columns=['Sweep', 'current_pA', 
                                     'steady_state_voltage_stimend'])  
     
+    for_verification_all_currents = []
+    for_verification_all_voltages = []
+
     # Loop function
     for sweep in abf.sweepList:  # To select a range of traces
         abf.setSweep(sweep, channel = channel)
@@ -113,10 +154,13 @@ def create_plot_current_voltage (abf, abf_c, channel, channel_c, t1_c, t2_c, sti
                  'stim_end' : [stim_end]}
         traces = [trace]
         
-        currents = [] # Current value between t1 and t2 (ms) for each step
         t1 = int(t1_c*abf.dataPointsPerMs) 
         t2 = int(t2_c*abf.dataPointsPerMs)
         current_mean = np.average(abf_c.sweepC[t1:t2])
+
+        # For verification of protocols
+        for_verification_all_currents.extend(abf_c.sweepC)
+        for_verification_all_voltages.append(abf.sweepY)
 
         # Output features
         feature_values = getFeatureValues(traces,
@@ -139,6 +183,10 @@ def create_plot_current_voltage (abf, abf_c, channel, channel_c, t1_c, t2_c, sti
                 table_m.loc[length, 'steady_state_voltage_stimend'] = feature_values['steady_state_voltage_stimend'][0]
                 table_m.loc[length, 'current_pA'] = current_mean # [] to select the rows of current step
 
+    #  Run Verifications
+    verify_protocol_channel(for_verification_all_currents)
+    verify_negative_sweeps(for_verification_all_currents)
+    verify_recording_channel(for_verification_all_voltages)
 
     fig = plt.figure(figsize=(10, 5))
     current = table_m["current_pA"].to_list()

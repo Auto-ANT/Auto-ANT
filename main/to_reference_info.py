@@ -6,12 +6,13 @@ This file contains all logic for the references/licenses page
 from tkinter import ttk, Frame, Toplevel, Canvas,Scrollbar, VERTICAL
 from gui_style_definitions import init_gui_style
 
-#! ------------------------------ Menu for subsetting cols ------------------------------
-# here
+#! ------------------------------ Refrencing info ------------------------------
+
 def to_reference():
     top = Toplevel()
     init_gui_style(top)
     top.title("References & Licenses")
+
     # --------------------------------------------------------------------
     # Create a canvas inside the Toplevel
     canvas = Canvas(top)
@@ -130,8 +131,13 @@ def to_reference():
     top.grid_columnconfigure(0, weight=1)
 
     # Bind mouse scroll to canvas scrolling
-    def _on_mouse_wheel(event):
+    def on_mousewheel(event):
         canvas.yview_scroll(-1 * (event.delta // 120), "units")
+
+    # Windows and MacOS mouse wheel support
+    canvas.bind_all("<MouseWheel>", on_mousewheel)        # Windows
+    canvas.bind_all("<Button-4>", lambda e: canvas.yview_scroll(-1, "units"))  # Linux scroll up
+    canvas.bind_all("<Button-5>", lambda e: canvas.yview_scroll(1, "units"))   # Linux scroll down
 
     #? ---------------- Close button ----------------
     def close_window():
@@ -140,6 +146,6 @@ def to_reference():
     close_button = ttk.Button(top,
                              text="Close", 
                              command=close_window,
-                             style = 'Cite.TButton')
+                             style = 'CloseWindow.TButton')
 
-    close_button.grid(row = 1, column=0, padx = (30,30), pady = (20,20), sticky = 'we')
+    close_button.grid(row = 1, column=0, padx = (30,30), pady = (20,50), sticky = 'we')

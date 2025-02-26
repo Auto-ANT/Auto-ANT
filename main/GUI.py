@@ -16,10 +16,6 @@ import signal
 from matplotlib import use as use_plotting_engine
 use_plotting_engine('Agg')
 
-import logging
-logging.getLogger('matplotlib').setLevel(logging.ERROR)
-
-
 # Add the top-level directory to the sys.path, to enable function imports
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from gui_style_definitions import init_gui_style
@@ -30,8 +26,24 @@ from firing_properties_config import config_firing_properities_table
 from passive_membrane_properties_config import passive_membrane_properities_table
 from neuronal_overview_config import config_neuronal_overview_table
 from to_reference_info import  to_reference
+from view_logs import  to_logs
 
 from utils import get_resource_path
+
+
+#! ---------------Loggers ---------------
+import logging
+
+# Configure logging to write to a file
+logging.basicConfig(
+        filename= get_resource_path('main/autoANT.log'),  
+        filemode='w',                  # 'a' for append, 'w' for overwrite
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        level=logging.INFO,             # Minimum logging level
+        force = True
+    )
+logging.getLogger('matplotlib').setLevel(logging.ERROR)
+
 
 # To enable cancelling analysis runs early
 exit_event =  threading.Event()
@@ -99,6 +111,7 @@ class data_to_use:
         
         # Hide and present stop/start buttons
         trigger_calculations_button.grid_forget()
+        logs_button.grid_forget()
         stop_button.grid(row=25, column=4, pady = (0,10),padx=(10,0), sticky = 'w')
         
         # Set input folder, output folder, file name
@@ -131,12 +144,15 @@ class data_to_use:
         # ------------------------ For Input ------------------------
         # Automatic Input - Get the list of all files in the directory
         dir_list = os.listdir(self.input_folder_name)
+        # Filter out non abf files
+        dir_list = [x for x in dir_list if x.endswith(".abf")]
         # Ensures files are handled in alphabetical order
         dir_list.sort()
         # Here, file[0] is the iterator number, file[1] is the actual value
         list_outcomes = []
-        for file in enumerate(dir_list):
 
+        logging.info("++++++++++ Analysis begins ++++++++++")
+        for file in enumerate(dir_list):
             # If its been stopped - Break the loop
             if exit_event.is_set():
                 break
@@ -147,10 +163,15 @@ class data_to_use:
         # Check if the run has been cancelled and updates the label
         if exit_event.is_set():
             status_title.config(text = 'Stopped early',foreground='red')
+            logging.info("---------- Analysis stopped early ----------")  
+
         elif all(list_outcomes):
             status_title.config(text = 'Success! ',foreground='green')
+            logging.info("---------- Analysis completed ----------")  
+
         else:
             status_title.config(text = 'Completed with errors',foreground='red')
+            logging.info("---------- Analysis completed with errors ----------")  
 
         # Remove the exit event, so the analysis can be re-run
         exit_event.clear()
@@ -158,6 +179,8 @@ class data_to_use:
         # Hide and present stop/start buttons
         stop_button.grid_forget()
         trigger_calculations_button.grid(row=25, column=4, pady = (0,10),padx=(10,0), sticky = 'w')
+        logs_button.grid(row=26, column=4, pady = (0,10),padx=(10,0), sticky = 'w')
+
 
 
 #! Stop run
@@ -864,11 +887,19 @@ stop_button = ttk.Button(text="Stop Analysis",
                           style ='Stop.TButton')
 stop_button.grid_forget()
 
+
+# ------------ Logs Button  ---------------
+logs_button = ttk.Button(text="Detailed Logs" ,
+                          command=to_logs,
+                          style ='Logs.TButton')
+logs_button.grid(row=26, column=4, pady = (0,10),padx=(10,0), sticky = 'w')
+logs_button.grid_forget()
+
 # ------------ Citation Button  ---------------
 citation_button_2 = ttk.Button(text="Citation Info" ,
                           command=to_reference,
                           style ='Cite.TButton')
-citation_button_2.grid(row=26, column=4, pady = (0,5), padx=(10,15), sticky = 'e')
+citation_button_2.grid(row=26, column=4, pady = (0,10), padx=(0,15), sticky = 'e')
 
 #?  File process Output ---------------------------------------
 # ---------- Status Update ---------
@@ -884,8 +915,7 @@ error_text_row = 2
 error_text = ttk.Label(root, text="", style = 'Error.TLabel')
 error_text.grid(row=error_text_row, column=4, padx=(0,10), sticky = 'w')
 
-#? 'w'indow ---------------------------------------\
-
+#? window ---------------------------------------\
 # Shenanigans for exiting all threads when main ends
 def signal_handler(signum, frame):
     exit_event.set()

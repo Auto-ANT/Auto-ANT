@@ -43,7 +43,22 @@ def init_gui_style(root):
                     bordercolor = 'darkblue',
                     padx=(10, 10),pady=(20, 20),
                     height = 15)
+    
+    style.configure('Logs.TButton', 
+                    font = ('calibri', 12, 'bold'),
+                    foreground = 'dimgrey', 
+                    bordercolor = 'dimgrey',
+                    padx=(10, 10),pady=(20, 20),
+                    height = 15)
+    
 
+    style.configure('CloseWindow.TButton', 
+                    font = ('calibri', 12, 'bold'),
+                    foreground = 'black', 
+                    bordercolor = 'black',
+                    padx=(10, 10),pady=(20, 20),
+                    height = 15)
+    
 
     style.configure('Gear.TButton', 
                     foreground = 'white', 

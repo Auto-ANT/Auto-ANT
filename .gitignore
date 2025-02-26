@@ -121,14 +121,19 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+
 # Environments
 .env
 .venv
+autoant39
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+autoant3118
+autoant39_test2
+autoant39
 
 # Spyder project settings
 .spyderproject
@@ -170,3 +175,8 @@ main/.DS_Store
 main/analysis/.DS_Store
 main/analysis/output_config/.DS_Store
 main/images/.DS_Store
+requirements_python37.txt
+requirements_python391.txt
+requirements2.txt
+Ready_to_use_applications/AutoANT-Mac.zip
+Ready_to_use_applications/AutoANT-PC.zip

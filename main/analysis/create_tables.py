@@ -4,23 +4,29 @@ Houses all functions used to create table, i.e.,
 Neuronal overview table, Action Potential table, and membrane potential table
 
 Input: ABF files,
-Output: Tables (pandas dataframes)
+Output: Tables (pandas dataframes) or errors
 """
 
 import pandas as pd
 from ipfx.feature_extractor import SpikeFeatureExtractor, SpikeTrainFeatureExtractor
 from efel import getFeatureValues
 import numpy as np
+import logging
 
-import warnings
-warnings.filterwarnings("ignore", category=RuntimeWarning)
+# import warnings
+# warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+from utils import verify_negative_sweeps, verify_no_firing_sweeps,\
+                verify_protocol_channel, verify_recording_channel
+
 
 #! ----- Action Potential Table - Combination of IPFX and AP table
 # IPFX TABLE
 def generate_ipfx_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
     
     table_1 = pd.DataFrame()
-
+    for_verification_all_currents = []
+    for_verification_all_voltages = []
     # Loop function to analyze each voltage and current trace of the file
     for sweep in abf.sweepList:
         # abf.setSweep(sweep)
@@ -31,13 +37,13 @@ def generate_ipfx_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, 
         voltage = abf.sweepY
         current = abf_c.sweepC
 
-        currents = [] # Current value between t1 and t2 (ms) for each step
-        t1 = int(t1_c*abf.dataPointsPerMs) 
-        t2 = int(t2_c*abf.dataPointsPerMs)
-        current_mean = np.average(abf_c.sweepC[t1:t2])
-
+        # For verification of protocols
+        for_verification_all_currents.extend(current)
+        for_verification_all_voltages.append(voltage)
+        
         sfx = SpikeFeatureExtractor(start=(stim_start/1000), end=(stim_end/1000), filter=None)
         sfx_results = sfx.process(time, voltage, current)
+
         stfx = SpikeTrainFeatureExtractor (start=(stim_start/1000), end=(stim_end/1000))
         stfx_results = stfx.process(time, voltage, current, sfx_results)
 
@@ -46,38 +52,18 @@ def generate_ipfx_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, 
 
         if stfx_results ['avg_rate'] > 0:
             table_1.loc[length, 'Sweep'] = sweep
-            table_1.loc[length, 'First ISI (ms)'] = stfx_results ["first_isi"]*1000
-            table_1.loc[length, 'Mean ISI (ms)'] = stfx_results ["mean_isi"]*1000
-            table_1.loc[length, 'ISI CV'] = stfx_results ["isi_cv"] #Coefficient of variation
-    
+            table_1.loc[length, 'First ISI (ms)'] = stfx_results["first_isi"]*1000
+            table_1.loc[length, 'Mean ISI (ms)'] = stfx_results["mean_isi"]*1000
+            table_1.loc[length, 'ISI CV'] = stfx_results["isi_cv"] #Coefficient of variation
+
+    verify_protocol_channel(for_verification_all_currents)
+    verify_recording_channel(for_verification_all_voltages)
+
     return(table_1)
 
 
-#! FILE 3
-# AP table
+# Action Potential table
 def generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
-
-    # Define the variables
-    for sweep in abf.sweepList:
-        # abf.setSweep(sweep)
-        abf.setSweep(sweep, channel = channel)
-        abf_c.setSweep(sweep, channel = channel_c)
-        time = abf.sweepX*1000 # in miliseconds
-        voltage = abf.sweepY
-        current = abf_c.sweepC
-
-    # Define the variables and region of analysis
-    trace = {'T': abf.sweepX*1000, 
-             'V': abf.sweepY,
-             'stim_start': [stim_start],
-             'stim_end': [stim_end]} 
-    traces = [trace]
-
-    # Optional: Current step values
-    currents = [] # Current value between t1 and t2 (ms) for each step
-    t1 = int(t1_c*abf.dataPointsPerMs) 
-    t2 = int(t2_c*abf.dataPointsPerMs)
-    current_mean = np.average(abf_c.sweepC[t1:t2])
 
     # OptionaL Create a table with the results-> what you want to display
     table = pd.DataFrame(columns=[#general
@@ -115,6 +101,7 @@ def generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, st
         abf.setSweep(sweep, channel = channel)
         abf_c.setSweep(sweep, channel = channel_c)
 
+        
         # Defines a trace and region of analysis
         trace = {'T': abf.sweepX*1000, # convert to ms
                  'V': abf.sweepY,
@@ -124,7 +111,7 @@ def generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, st
         traces = [trace]
 
         # Optional: Current step values
-        currents = [] # Current value between t1 and t2 (ms) for each step
+        # currents = [] # Current value between t1 and t2 (ms) for each step
         t1 = int(t1_c*abf.dataPointsPerMs) 
         t2 = int(t2_c*abf.dataPointsPerMs)
         current_mean = np.average(abf_c.sweepC[t1:t2])
@@ -258,7 +245,7 @@ def generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, st
                 table.loc[length, 'Amplitude AP1/APL'] = (feature_values['AP_amplitude'][0] / feature_values['AP_amplitude'][-1])
                 table.loc[length, 'Peak AP1/APL'] = (feature_values['peak_voltage'][0] / feature_values['peak_voltage'][-1])
                 table.loc[length, 'Half width AP1/APL'] = (feature_values['spike_half_width'][0] / feature_values['spike_half_width'][-1])
-                     
+
     return table 
 
 def merge_ipfx_ap_tables(ipfx_table, ap_table):
@@ -266,16 +253,17 @@ def merge_ipfx_ap_tables(ipfx_table, ap_table):
     return(table_final)
 
 
-
-#! ----- Membrane Potential Table - Combination of IPFX and AP table
-def generate_membrane_potential_table (abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
+#! ----- Membrane Potential Table 
+def generate_membrane_potential_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
     
     table_m=pd.DataFrame()
+    for_verification_all_currents = []
+    for_verification_all_voltages = []
 
-    # Loop function
     for sweep in abf.sweepList: #[0:num_of_traces]:  # To select a range of traces
         abf.setSweep(sweep, channel = channel)
         abf_c.setSweep(sweep, channel = channel_c)
+
         # Defines a trace and region of analysis
         trace = {'T': abf.sweepX*1000, #convert to ms
                  'V': abf.sweepY,
@@ -284,7 +272,11 @@ def generate_membrane_potential_table (abf, abf_c, channel, channel_c, t1_c, t2_
                  'stim_end' : [stim_end]}
         traces = [trace]
         
-        currents = [] # Current value between t1 and t2 (ms) for each step
+        # For verification of protocols
+        for_verification_all_currents.extend(abf_c.sweepC)
+        for_verification_all_voltages.append(abf.sweepY)
+
+        # currents = [] # Current value between t1 and t2 (ms) for each step
         t1 = int(t1_c*abf.dataPointsPerMs) 
         t2 = int(t2_c*abf.dataPointsPerMs)
         current_mean = np.average(abf_c.sweepC[t1:t2])
@@ -309,7 +301,7 @@ def generate_membrane_potential_table (abf, abf_c, channel, channel_c, t1_c, t2_
             table_m.loc[length, 'Capacitance (pF)'] = (table_m.loc[length, 'Time constant (ms)']/table_m.loc[length, 'Input resistance (Gohm)'])
             table_m.loc[length, 'Decay time constant (ms)'] = feature_values['decay_time_constant_after_stim']
             table_m.loc[length, 'Sag amplitude (mV)'] = feature_values['sag_amplitude']
-            table_m.loc[length, 'Sag ratio'] = feature_values['sag_ratio2']
+            table_m.loc[length, 'Sag ratio'] = feature_values['sag_ratio2'] if feature_values['sag_amplitude'] else None
             table_m.loc[length, 'Sag time constant (ms)'] = feature_values['sag_time_constant']
         
         elif feature_values["AP_amplitude"] is not None: 
@@ -324,18 +316,32 @@ def generate_membrane_potential_table (abf, abf_c, channel, channel_c, t1_c, t2_
                 table_m.loc[length, 'Capacitance (pF)'] = (table_m.loc[length, 'Time constant (ms)']/table_m.loc[length, 'Input resistance (Gohm)'])
                 table_m.loc[length, 'Decay time constant (ms)'] = feature_values['decay_time_constant_after_stim']
                 table_m.loc[length, 'Sag amplitude (mV)'] = feature_values['sag_amplitude']
-                table_m.loc[length, 'Sag ratio'] = feature_values['sag_ratio2']
+                table_m.loc[length, 'Sag ratio'] = feature_values['sag_ratio2'] if feature_values['sag_amplitude'] else None
                 table_m.loc[length, 'Sag time constant (ms)'] = feature_values['sag_time_constant']
+
+    #  Run Verifications
+    verify_protocol_channel(for_verification_all_currents)
+    verify_negative_sweeps(for_verification_all_currents)
+    verify_recording_channel(for_verification_all_voltages)
 
     return table_m
 
 
-#! ----- Neuronal overview Table - Combination of IPFX and AP table
-def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
+#! ----- Neuronal overview Table - Combination of Membrane, IPFX, AP table
+def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, include_fp):
+    """
+    Error test - Within get_slope_for_input_resistance and initialize_overview_table (Protocol and recording channel)
+   
+    Warning test - are_there_spikes resides inside add_api_data (Checks for action potentials in sweeps)
+    """
     
     def get_slope_for_input_reistance(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
         # Create results table 
         table_ir = pd.DataFrame()
+
+        #! Verifies recording and protocol channel
+        for_verification_all_currents = []
+        for_verification_all_voltages = []
 
         for sweep in abf.sweepList:
             # abf.setSweep(sweep)
@@ -350,6 +356,10 @@ def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c,
                     'stim_start': [stim_start],
                     'stim_end': [stim_end]} 
             traces = [trace]
+
+            # For verification of protocols
+            for_verification_all_currents.extend(abf_c.sweepC)
+            for_verification_all_voltages.append(abf.sweepY)
 
             # Optional: Current step values
             t1 = int(t1_c*abf.dataPointsPerMs) 
@@ -379,6 +389,10 @@ def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c,
         current = table_ir["current_pA"].to_list()
         voltage = table_ir["steady_state_voltage_stimend"].to_list()
 
+        verify_protocol_channel(for_verification_all_currents)
+        verify_negative_sweeps(for_verification_all_currents)
+        verify_recording_channel(for_verification_all_voltages)
+
         # Linear regression
         m, b = np.polyfit(current, voltage, 1)
 
@@ -387,6 +401,10 @@ def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c,
     def initialize_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, slope_of_input_resistance):
         # Overview table    
         table = pd.DataFrame()
+
+        #! Verifies recording and protocol channel
+        for_verification_all_currents = []
+        for_verification_all_voltages = []
 
         # Loop function
         # Only check the first sweep - we only need SAG, which we need from the first sweep 
@@ -401,11 +419,11 @@ def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c,
                     'stim_end' : [stim_end]}
             traces = [trace]
             
-            t1 = int(t1_c*abf.dataPointsPerMs) 
-            t2 = int(t2_c*abf.dataPointsPerMs)
-            current_mean = np.average(abf_c.sweepC[t1:t2])
-            
-        # Output features
+            # For verification of channels
+            for_verification_all_currents.extend(abf_c.sweepC)
+            for_verification_all_voltages.append(abf.sweepY)
+
+            # Output features
             feature_values = getFeatureValues(traces,
                                                 ['voltage', 'steady_state_voltage_stimend', 
                                                     'current', 'time_constant', 'voltage_base',
@@ -421,12 +439,15 @@ def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c,
         # Calculate time constant and add input res
         table.loc[length, 'Membrane Input Restance (GOhm)'] = slope_of_input_resistance
 
+        verify_protocol_channel(for_verification_all_currents)
+        verify_recording_channel(for_verification_all_voltages)
+
         return table
         
     def add_membrane_time_constant(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, overview_table, slope_of_input_resistance):
-        # Created because we are looking for sweeps with -50 <= current_mean <= -40
-        table_tau=pd.DataFrame()
         
+        # Created because we are looking for sweeps with -50 <= current_mean <= -40
+        table_tau=pd.DataFrame() 
         for sweep in abf.sweepList:  # To select a range of traces
             abf.setSweep(sweep, channel = channel)
             abf_c.setSweep(sweep, channel = channel_c)
@@ -474,6 +495,21 @@ def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c,
         return overview_table
     
     def add_ap1_data(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, table):
+       
+        def are_there_spikes(abf,abf_c, stim_start, stim_end):
+            """ This function tests for sweeps with action potentials"""
+            # --------------------------------------------------------------------------------
+            sfx = SpikeFeatureExtractor(start=(stim_start/1000), end=(stim_end/1000), filter=None)
+            sfx_results = sfx.process(abf.sweepX, abf.sweepY, abf_c.sweepC)
+
+            stfx = SpikeTrainFeatureExtractor (start=(stim_start/1000), end=(stim_end/1000))
+            stfx_results = stfx.process(abf.sweepX, abf.sweepY, abf_c.sweepC, sfx_results)
+
+            if not stfx_results['avg_rate'] > 0:
+                return False
+            else:
+                return True
+            
         # ADD AP1 data for the overview   
         for sweep in abf.sweepList:  # To select a range of traces
             abf.setSweep(sweep, channel = channel)
@@ -509,23 +545,49 @@ def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c,
 
             if feature_values['AP_amplitude'] is not None:
                 if len(feature_values['AP_amplitude']) > 0 and current_mean >= 0:
-                    table.loc[0, 'Rheobase (pA)'] = current_mean
-                    table.loc[0, 'AP1 Latency (ms)'] = feature_values['time_to_first_spike'] [0]
-                    table.loc[0, 'AP1 amplitude (mV)'] = list(feature_values['AP_amplitude'])[0] # [0] returns values of first action potential, [1], for 2nd, etc. 
-                    table.loc[0, 'AP1 peak (mV)'] = feature_values['peak_voltage'][0]
-                    table.loc[0, 'AP1 width (ms)'] = feature_values['AP_width'][0]    
-                    table.loc[0, 'AP1 half width (ms)'] = feature_values['spike_half_width'][0]
-                    table.loc[0, 'AP1 threshold (mV)'] = feature_values['AP_begin_voltage'][0]
-                    table.loc[0, 'AP1 peak upstroke (V/s)'] = feature_values['AP_peak_upstroke'][0]
-                    table.loc[0, 'AP1 peak downstroke (V/s)'] = feature_values['AP_peak_downstroke'][0]
-                    table.loc[0,'AP1 rise rate'] = feature_values['AP_rise_rate'][0]
-                    table.loc[0, 'AP1 fall rate'] = feature_values['AP_fall_rate'][0]
-                    table.loc[0, 'AP1 rise time (ms)'] = feature_values['AP_rise_time'][0]
-                    table.loc[0, 'AP1 fall time (ms)'] = feature_values['AP_fall_time'][0]
-                    table.loc[0, 'AHP1 abs depth'] = feature_values['AHP_depth_abs'][0]
-                    table.loc[0, 'AHP1 time from peak (ms)'] = feature_values['AHP_time_from_peak'][0] 
-                    table.loc[0, 'AHP1 depth from threshold (mV)'] = (feature_values['AHP_depth_abs'] [0] - feature_values['AP_begin_voltage'] [0])
-                    break
+                    
+                    # --------------------------------------------------------------------------------
+                    if are_there_spikes(abf,abf_c, stim_start, stim_end):
+                        table.loc[0, 'Rheobase (pA)'] = current_mean
+                        table.loc[0, 'AP1 Latency (ms)'] = feature_values['time_to_first_spike'][0]
+                        table.loc[0, 'AP1 amplitude (mV)'] = list(feature_values['AP_amplitude'])[0] # [0] returns values of first action potential, [1], for 2nd, etc. 
+                        table.loc[0, 'AP1 peak (mV)'] = feature_values['peak_voltage'][0]
+                        table.loc[0, 'AP1 width (ms)'] = feature_values['AP_width'][0]    
+                        table.loc[0, 'AP1 half width (ms)'] = feature_values['spike_half_width'][0]
+                        table.loc[0, 'AP1 threshold (mV)'] = feature_values['AP_begin_voltage'][0]
+                        table.loc[0, 'AP1 peak upstroke (V/s)'] = feature_values['AP_peak_upstroke'][0]
+                        table.loc[0, 'AP1 peak downstroke (V/s)'] = feature_values['AP_peak_downstroke'][0]
+                        table.loc[0,'AP1 rise rate'] = feature_values['AP_rise_rate'][0]
+                        table.loc[0, 'AP1 fall rate'] = feature_values['AP_fall_rate'][0]
+                        table.loc[0, 'AP1 rise time (ms)'] = feature_values['AP_rise_time'][0]
+                        table.loc[0, 'AP1 fall time (ms)'] = feature_values['AP_fall_time'][0]
+                        table.loc[0, 'AHP1 abs depth'] = feature_values['AHP_depth_abs'][0]
+                        table.loc[0, 'AHP1 time from peak (ms)'] = feature_values['AHP_time_from_peak'][0] 
+                        table.loc[0, 'AHP1 depth from threshold (mV)'] = (feature_values['AHP_depth_abs'] [0] - feature_values['AP_begin_voltage'] [0])
+                        break
+                        
+                    else:
+                        table.loc[0, 'Rheobase (pA)'] = None
+                        table.loc[0, 'AP1 Latency (ms)'] = None
+                        table.loc[0, 'AP1 amplitude (mV)'] = None 
+                        table.loc[0, 'AP1 peak (mV)'] = None
+                        table.loc[0, 'AP1 width (ms)'] = None 
+                        table.loc[0, 'AP1 half width (ms)'] = None
+                        table.loc[0, 'AP1 threshold (mV)'] = None
+                        table.loc[0, 'AP1 peak upstroke (V/s)'] = None
+                        table.loc[0, 'AP1 peak downstroke (V/s)'] = None
+                        table.loc[0,'AP1 rise rate'] = None
+                        table.loc[0, 'AP1 fall rate'] = None
+                        table.loc[0, 'AP1 rise time (ms)'] = None
+                        table.loc[0, 'AP1 fall time (ms)'] = None
+                        table.loc[0, 'AHP1 abs depth'] = None
+                        table.loc[0, 'AHP1 time from peak (ms)'] = None
+                        table.loc[0, 'AHP1 depth from threshold (mV)'] = None
+                        continue
+        
+        # If this value is None -> Implies there were no sweeps with actin potentials
+        if pd.isnull(table.loc[0, 'Rheobase (pA)']):
+            logging.warning(f"--> There were no sweeps with action potentials")
 
         return table
 
@@ -535,8 +597,12 @@ def generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c,
     overview_table = initialize_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, slope_of_input_resistance)
     # Expnad table by adding membrane time constant
     overview_table_expanded = add_membrane_time_constant(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, overview_table, slope_of_input_resistance)
-    # Add API data to complete table
-    finalized_table = add_ap1_data(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, overview_table_expanded)
+
+    # Add AP1 data to complete table
+    if include_fp:
+        finalized_table = add_ap1_data(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, overview_table_expanded)
+    else:
+        finalized_table = overview_table_expanded
 
     return finalized_table
 
@@ -550,32 +616,66 @@ def unlist_arrays_in_all_cells(table: pd.DataFrame):
     """
     for col in table.columns.values:
         table[col] = table[col].apply(lambda x: x[0] if isinstance(x, np.ndarray) else x)
-    
     return table
+
+
+def remove_inf_all_cells(table: pd.DataFrame):
+    """
+    Go through each column, and apply function to each cell.
+    Replaces Inf with None
+    """
+    for col in table.columns.values:
+        table[col] = table[col].apply(lambda x: None if np.isinf(x) else x)
+    return table
+
 
 #! ----- Create Complete Table functions
 
 def create_ap_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
+    """ Error Checks:
+    - generate_ipfx_table - checks recording and protocol sweep
+    - (verify_ipfx_table and verify_ap_table) which checks if the tables are empty - indicating no sweeps
+    """
+    
     # Generate tables
     ipfx_table = generate_ipfx_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
     ap_table =  generate_AP_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
+        
+    # Verify both tables to make sure there not empty
+    # Both are verified for channels within the prior step
+    verify_no_firing_sweeps(ipfx_table)
+    verify_no_firing_sweeps(ap_table)
+
     final_ap_table = merge_ipfx_ap_tables(ipfx_table, ap_table)
     # Unlist the elements in lists
     complete_ap_table = unlist_arrays_in_all_cells(final_ap_table)
+
     return complete_ap_table
 
 def create_membrane_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
+    """ Error Checks:
+    Raises error - generate_membrane_potential_table - checks recording and protocol sweep, and checks for
+    NoNegativeSweepsError  
+    """
+
     # Generate tables
     table_membrane_properties = generate_membrane_potential_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)
     
     # Unlist the elements in lists
-    complete_membrane_properties = unlist_arrays_in_all_cells(table_membrane_properties)
+    complete_membrane_properties_withtout_lists = unlist_arrays_in_all_cells(table_membrane_properties)
+    complete_membrane_properties = remove_inf_all_cells(complete_membrane_properties_withtout_lists)
 
     return complete_membrane_properties
 
-def create_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end):
+def create_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, include_fp):
+    """Error Checks:
+        - Raises Warning -  if a cell is missing sweps with action potential
+        - Raises Error - generate_neuronal_overview_table (inside both get_slope_for_input_reistance and initialize_overview_table) -
+             checks recording and protocol sweep, and checks for NoNegativeSweepsError
+    """
+        
     # Generate tables
-    neuronal_overview_table = generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end)  
+    neuronal_overview_table = generate_neuronal_overview_table(abf, abf_c, channel, channel_c, t1_c, t2_c, stim_start, stim_end, include_fp)  
     # Unlist the elements in lists
     complete_neuronal_overview_table = unlist_arrays_in_all_cells(neuronal_overview_table)
 

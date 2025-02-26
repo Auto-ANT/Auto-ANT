@@ -1,17 +1,26 @@
 #  Auto Analysis and Tables (Auto ANT)
 
+# Downloading Auto ANT
+The user can download a specific application (PC or Mac), the entire repository, or the a release.
+The code and applications reflects the latest release (this may be relevant if the user intends to cite the package).
+If the user only wants the application
+- Download the relevant .zip application directly from the folder Ready_to_use_applications
+If the user wants the code and the applications
+- It is recommended to download the latest release. This zip file contains all content in the repository, including the .zip applications and the code. 
+
 # Running Auto ANT as an application
 Running Auto ANT as an application does not require any programming expertise. After downloading the application, it can be run without any further installations.
-1. Open the folder "Ready to use applications"
+1. Open the folder "Ready_to_use_applications"
 2. Select the relevant zip file depending on your operating system (mac or PC) and click it
 3. In the upper right corner there are 3 dots ("..."). Click this, and download the .zip file
 4. Unzip the file 
 5. Right click the file and select open (if you double click it directly, a warning may prevent it from opening)
+    - On Mac computers the user may be warned not to open software from unknown developers. To open the application, users may need to navigate to Settings -> Privacy & Security to explicitly allow the use of the application
 6. The application might take a minute to open. Once opened it's ready to be used.
 
 # Running Auto ANT via code 
 To run Auto ANT via code, the user will need to download the repo (either via cloning or downloading the zip).
-To run the code, the user will need to use python 3.7.3.
+To run the code, the user will need to use python 3.9.1.
 
 ## Easiest Install: Via Conda 
 1. Install Conda
@@ -41,7 +50,7 @@ For example, if a cell is lacking sweeps, the firing proprties table will skip t
 If an error is encountered, a short, summarizing error description is mentioned in the status window. Users can view a more detailed error message within the log. 
 
 Common errors to encounter are 
-- NoSweepsError
+- NoFiringSweepsError
     - Raised when there are no sweeps fulfilling the requirement for firing properties 
     - May affect the Firing properties table
 - NoNegativeSweepsError
@@ -59,6 +68,7 @@ After a run is completed, a button called "Detailed Logs" will become visible. C
 
 The log shows general information about the files being created (tagged as Info), as well as Warnings (tagged as Warning) and errors (tagged as Errors).
 
+## Citations
 #### If the use of this software supports a publication, make sure to reference the creators of the underlying packages.
 - Instructions for how to cite the key packages are in their respective GitHub repositories:
     - EFEL package (https://github.com/BlueBrain/eFEL)

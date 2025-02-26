@@ -21,7 +21,7 @@ def get_resource_path(relative_path):
 
 
 # ---------------------------- Error Handling ----------------------------
-class NoSweepsError(Exception):
+class NoFiringSweepsError(Exception):
     """Raised when the resulting table is empty due to invalid inputs."""
     pass
 
@@ -43,7 +43,7 @@ def verify_no_firing_sweeps(data):
             - Firing Properties table (ipfx or ap)"""
     
     if len(data) ==  0:
-        raise NoSweepsError('There were no sweeps fulfilling the requirement for firing properties.')
+        raise NoFiringSweepsError('There were no sweeps fulfilling the requirement for firing properties.')
 
 def verify_negative_sweeps(data):
     """If all values are above 0 it indicates there are no sweeps fulfilling the requirement

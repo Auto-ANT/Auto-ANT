@@ -1,0 +1,7 @@
+To use the sample dataset, select the folder "Sample_dataset".
+To run the analysis, use the following paramters:
+
+- Recording channel   - 0
+- Protocol channel    - 1
+- Protocol starts     - 115
+- Protocol ends       - 815

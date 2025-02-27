@@ -1,12 +1,11 @@
 #  Auto Analysis and Tables (Auto ANT)
 
 # Downloading Auto ANT
-The user can download a specific application (PC or Mac), the entire repository, or the a release.
-The code and applications reflects the latest release (this may be relevant if the user intends to cite the package).
-If the user only wants the application
-- Download the relevant .zip application directly from the folder Ready_to_use_applications
-If the user wants the code and the applications
-- It is recommended to download the latest release. This zip file contains all content in the repository, including the .zip applications and the code. 
+The user can download a specific application (PC or Mac), the entire repository, or a release. The code and applications reflects the latest release.
+If the user only wants the application:
+- Download the relevant .zip file directly from the folder Ready_to_use_applications.
+If the user wants the code and the applications:
+- It is recommended to download the latest release. This zip file contains all content in the repository, including the .zip files for the applications and the code. 
 
 # Running Auto ANT as an application
 Running Auto ANT as an application does not require any programming expertise. After downloading the application, it can be run without any further installations.

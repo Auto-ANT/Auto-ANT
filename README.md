@@ -43,15 +43,13 @@ To run the code, the user will need to use python 3.9.1.
 4. in Conda promt, write "python run_analysis.py".
 
 ## Error Handling
-If an error is encountered while creatinga file, the process for that cell and file will be stopped, but other cells will continue to be analyzed.
-
-For example, if a cell is lacking sweeps, the firing proprties table will skip that file. Other cells on the other hand will be added.
-
-If an error is encountered, a short, summarizing error description is mentioned in the status window. Users can view a more detailed error message within the log. 
-
-Common errors to encounter are 
-- NoFiringSweepsError
-    - Raised when there are no sweeps fulfilling the requirement for firing properties 
+If an error is encountered, a short, summarizing error description is mentioned in the status window. Users can view a more detailed error message within the log.
+- ⁠If the error affects all recordings in the dataset—such as an incorrect protocol or recording channel—no output will be produced. 
+- ⁠If an error pertains to only some recordings (e.g. a recording acquired with a different protocol from the rest of the dataset), those specific recordings will be indicated in the status window and excluded from the output tables, while the rest of the dataset is analysed as usual.
+- ⁠If an error affects only a specific output table or plot (e.g., selecting the firing table for recordings without action potentials), only that specific table will be blocked, while all other outputs will function normally.
+Common errors to encounter are:
+- ⁠NoFiringSweepsError
+    - Raised when there are no sweeps fulfilling the requirement for firing properties
     - May affect the Firing properties table
 - NoNegativeSweepsError
     - Raised when there are no sweeps fulfilling the requirement for membrane
@@ -59,7 +57,7 @@ Common errors to encounter are
 - WrongRecordingChannelError
     - Raised when the wrong recording channel is used
     - May affect all tables and plots
-- WrongProtocolChannelError
+- ⁠WrongProtocolChannelError
     - Raised when the wrong protocol channel is used
     - May affect all tables and plots
 

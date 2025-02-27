@@ -169,6 +169,8 @@ cython_debug/
 # Custom additions
 to_ignore/
 .DS_Store
+Sample_dataset/.DS_Store
+Sample_dataset/"Auto ANT output"/.DS_Store
 main/__pycache__/
 main/analysis/__pycache__/
 main/.DS_Store

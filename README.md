@@ -66,6 +66,10 @@ After a run is completed, a button called "Detailed Logs" will become visible. C
 The log shows general information about the files being created (tagged as Info), as well as Warnings (tagged as Warning) and errors (tagged as Errors).
 
 ## Citations
+Auto ANT is introduced in the following paper https://rdcu.be/eepSk. When Auto ANT is used for publication please cite:
+Pizzirusso, G., Sundström, S. & Arroyo-García, L.E. Efficient, Automatic, and Reproducible Patch Clamp Data Analysis with “Auto ANT”, a User-Friendly Interface for Batch Analysis of Patch Clamp Recordings. Neuroinform 23, 24 (2025). https://doi.org/10.1007/s12021-025-09721-w
+
+
 #### If the use of this software supports a publication, make sure to reference the creators of the underlying packages.
 - Instructions for how to cite the key packages are in their respective GitHub repositories:
     - EFEL package (https://github.com/BlueBrain/eFEL)

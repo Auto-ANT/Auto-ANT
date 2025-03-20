@@ -43,19 +43,19 @@ def create_and_add_sheet_to_excel(file_name, iterator_number, cell_file_name, ta
     # If its the first cell, create the file
     if iterator_number == 0:
         # table.to_excel(full_file_name, sheet_name= sheetname, index=False) 
-        with pd.ExcelWriter(full_file_name, mode = 'w') as writer:
+        with pd.ExcelWriter(full_file_name, mode = 'w', engine='openpyxl') as writer:
                 table.to_excel(writer, sheet_name = sheetname, index=False) 
 
     # If the file already exists, add a new sheet to it
     else:
         if os.path.exists(full_file_name):
             # Maybe check if the file exists first? If so 
-            with pd.ExcelWriter(full_file_name, mode = 'a', if_sheet_exists="replace") as writer:
+            with pd.ExcelWriter(full_file_name, mode = 'a', if_sheet_exists="replace", engine='openpyxl') as writer:
                 table.to_excel(writer, sheet_name = sheetname, index=False) 
 
         else:
             # Maybe check if the file exists first?
-            with pd.ExcelWriter(full_file_name, mode = 'w') as writer:
+            with pd.ExcelWriter(full_file_name, mode = 'w', engine='openpyxl') as writer:
                 table.to_excel(writer, sheet_name = sheetname, index=False)             
 
 
@@ -74,7 +74,7 @@ def create_and_add_row_to_excel(file_name, iterator_number, cell_name,  table, c
 
     # If its the first cell, create the file
     if iterator_number == 0:
-        with pd.ExcelWriter(full_file_name, mode = 'w') as writer:
+        with pd.ExcelWriter(full_file_name, mode = 'w', engine='openpyxl') as writer:
             table.to_excel(writer, sheet_name = sheetname, index=False) 
           
     # If the file already exists, add a new sheet to it

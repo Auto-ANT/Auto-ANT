@@ -38,7 +38,8 @@ def to_reference():
     description.grid(row = 2, column = 1, padx=(10, 0), sticky = 'w', columnspan = 1)
 
     reference_1_text = f"""\
-    This is a placeholder for the paper introducing Auto ANT.\n"""
+    Pizzirusso, G., Sundström, S. & Arroyo-García, L.E. Efficient, Automatic, and Reproducible Patch Clamp Data Analysis with “Auto ANT”,
+    a User-Friendly Interface for Batch Analysis of Patch Clamp Recordings. Neuroinform 23, 24 (2025).\n"""
     description = ttk.Label(frame, text=reference_1_text, style = "pText.TLabel")
     description.grid(row = 3, column = 1, sticky = 'w', columnspan = 1)
 
